@@ -53,7 +53,11 @@ public class App {
     // to get environment variables more easily.
     private static String getenv(String key) {
         // Prioritize .env first
-        String value = dotenv.get(key);
+        String value = null;
+        try {
+            value = dotenv.get(key);
+        } catch (Exception e) {} // .env file not found
+
         return value != null ? value : System.getenv(key);
     }
     public static void main(String[] args) {
