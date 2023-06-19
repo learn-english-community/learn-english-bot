@@ -15,10 +15,7 @@ public class App {
 
     public static final Logger logger = LogManager.getLogger();
 
-    private static final Dotenv dotenv = Dotenv
-        .configure()
-        .directory("..")
-        .load();
+    private static Dotenv dotenv;
 
     public static List<EventListener> listeners = new ArrayList<>();
     static {
@@ -26,6 +23,12 @@ public class App {
     }
 
     public void launch() {
+        try {
+            dotenv = Dotenv.configure().directory("..").load();
+        } catch (Exception e) {
+            dotenv = null;
+        }
+
         try {
             String envVar = App.getenv("PROD_BUILD");
             int isProdBuild;
@@ -54,9 +57,9 @@ public class App {
     private static String getenv(String key) {
         // Prioritize .env first
         String value = null;
-        try {
+
+        if (dotenv != null)
             value = dotenv.get(key);
-        } catch (Exception e) {} // .env file not found
 
         return value != null ? value : System.getenv(key);
     }
