@@ -24,7 +24,17 @@ public class App {
 
     public void launch() {
         try {
-            JDABuilder jdaBuilder = JDABuilder.createDefault(dotenv.get("BOT_TOKEN_DEV"));
+            String envVar = System.getenv("PROD_BUILD");
+            int isProdBuild;
+
+            if (envVar != null) {
+                isProdBuild = Integer.parseInt(envVar);
+            } else {
+               isProdBuild = 0;
+            }
+
+            String botToken = isProdBuild == 1 ? "BOT_TOKEN_PROD" : "BOT_TOKEN_DEV";
+            JDABuilder jdaBuilder = JDABuilder.createDefault(dotenv.get(botToken));
 
             // Add event listeners
             listeners.forEach(jdaBuilder::addEventListeners);
