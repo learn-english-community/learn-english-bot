@@ -27,7 +27,7 @@ public class App {
 
     public void launch() {
         try {
-            String envVar = System.getenv("PROD_BUILD");
+            String envVar = App.getenv("PROD_BUILD");
             int isProdBuild;
 
             if (envVar != null) {
@@ -37,7 +37,7 @@ public class App {
             }
 
             String botToken = isProdBuild == 1 ? "BOT_TOKEN_PROD" : "BOT_TOKEN_DEV";
-            JDABuilder jdaBuilder = JDABuilder.createDefault(dotenv.get(botToken));
+            JDABuilder jdaBuilder = JDABuilder.createDefault(App.getenv(botToken));
 
             // Add event listeners
             listeners.forEach(jdaBuilder::addEventListeners);
@@ -49,6 +49,13 @@ public class App {
         }
     }
 
+    // TODO (@christolis): There must be a better way
+    // to get environment variables more easily.
+    private static String getenv(String key) {
+        // Prioritize .env first
+        String value = dotenv.get(key);
+        return value != null ? value : System.getenv(key);
+    }
     public static void main(String[] args) {
         new App().launch();
     }
