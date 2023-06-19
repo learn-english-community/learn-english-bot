@@ -15,7 +15,10 @@ public class App {
 
     public static final Logger logger = LogManager.getLogger();
 
-    private static final Dotenv dotenv = Dotenv.load();
+    private static final Dotenv dotenv = Dotenv
+        .configure()
+        .directory("..")
+        .load();
 
     public static List<EventListener> listeners = new ArrayList<>();
     static {
