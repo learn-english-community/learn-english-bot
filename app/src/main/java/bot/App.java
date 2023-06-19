@@ -5,15 +5,15 @@ import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.EventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class App {
 
-    public static final Logger logger = LoggerFactory.getLogger(App.class.getName());
+    public static final Logger logger = LogManager.getLogger();
 
     private static final Dotenv dotenv = Dotenv.load();
 
