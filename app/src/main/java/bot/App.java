@@ -11,15 +11,19 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class App {
 
@@ -80,6 +84,8 @@ public class App {
             String botToken = isProdBuild == 1 ? "BOT_TOKEN_PROD" : "BOT_TOKEN_DEV";
             JDABuilder jdaBuilder = JDABuilder.createDefault(App.getenv(botToken));
 
+            jdaBuilder.enableIntents(GatewayIntent.GUILD_VOICE_STATES);
+
             // Add event listeners
             listeners.forEach(jdaBuilder::addEventListeners);
             commands.forEach(jdaBuilder::addEventListeners);
@@ -96,15 +102,19 @@ public class App {
             Guild guild = guildOptional.get();
 
             // Register slash commands
-            commands.forEach(command -> {
-                SlashCommandData scd = Commands.slash(command.getName(), command.getDescription());
+            Collection<CommandData> data = commands.stream()
+                .map(command -> {
+                    SlashCommandData scd = Commands.slash(command.getName(), command.getDescription());
 
-                command.getArguments().forEach((name, arg) -> scd.addOption(
-                    arg.getType(), name, arg.getDescription(),
-                    arg.isRequired(), arg.shouldAutocomplete()
-                ));
-                guild.updateCommands().addCommands(scd).queue();
-            });
+                    command.getArguments().forEach((name, arg) -> scd.addOption(
+                        arg.getType(), name, arg.getDescription(),
+                        arg.isRequired(), arg.shouldAutocomplete()
+                    ));
+                    return scd;
+                })
+                .collect(Collectors.toList());
+            System.out.println(data.size());
+            guild.updateCommands().addCommands(data).queue();
         } catch (Exception e) {
             e.printStackTrace();
         }
