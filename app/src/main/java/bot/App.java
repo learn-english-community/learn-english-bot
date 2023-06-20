@@ -5,12 +5,14 @@ import bot.cmd.TranslateCommand;
 import bot.listener.ReadyListener;
 import com.deepl.api.Translator;
 import io.github.cdimascio.dotenv.Dotenv;
+import it.sauronsoftware.cron4j.Scheduler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,6 +23,7 @@ import java.util.Optional;
 public class App {
 
     public static final Logger logger = LogManager.getLogger();
+    public static final Scheduler scheduler = new Scheduler();
 
     private static Dotenv dotenv;
     public static Translator translator;
@@ -42,6 +45,14 @@ public class App {
             dotenv = null;
         }
 
+        // Schedule daily translation reset task.
+        scheduler.schedule(Constants.CRON_DAILY_MORNING, () -> {
+            // Clear all translation usages.
+            TranslateCommand.getUsages().clear();
+            logger.log(Level.INFO, "Cleaned member daily translation usage!");
+        });
+
+        scheduler.start();
         // Add DeepL supported languages and construct translate command.
         try {
             // Slash commands

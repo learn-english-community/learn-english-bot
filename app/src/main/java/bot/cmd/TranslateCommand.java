@@ -13,6 +13,8 @@ import java.util.*;
 
 public class TranslateCommand extends BotCommand {
 
+    private static final Map<String, Integer> usages = new HashMap<>();
+
     public TranslateCommand() {
         super("translate", "Translate your text in to a different language!");
 
@@ -41,7 +43,16 @@ public class TranslateCommand extends BotCommand {
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         final Map<String, String> args = new HashMap<>();
+        String userId = event.getUser().getId();
+        Integer userUsages = usages.get(userId);
 
+        if (userUsages != null && userUsages >= Constants.MAX_TRANSLATION_USAGES) {
+            event.reply("You have reached the maximum daily amount of translations."
+                    + " Try again in some hours!")
+                .setEphemeral(true)
+                .queue();
+            return;
+        }
         // If there is an empty argument, let the user know.
         this.getArguments().forEach((name, option) -> {
             OptionMapping om = event.getOption(name);
@@ -76,6 +87,7 @@ public class TranslateCommand extends BotCommand {
             String displayName = member.getNickname() != null
                 ? member.getNickname() : event.getUser().getName();
 
+            usages.put(userId, usages.containsKey(userId) ? usages.get(userId) + 1 : 1);
             event.getHook().editOriginal(
                 Languages.getEmojiFromCode(targetLang)
                 + " **" + displayName + "**: " + result.getText()).queue();
@@ -85,7 +97,9 @@ public class TranslateCommand extends BotCommand {
                 .queue();
             e.printStackTrace();
         }
-
     }
 
+    public static Map<String, Integer> getUsages() {
+        return usages;
+    }
 }
