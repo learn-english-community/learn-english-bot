@@ -1,6 +1,7 @@
 package bot;
 
 import bot.cmd.BotCommand;
+import bot.cmd.PingVoiceChatCommand;
 import bot.cmd.TranslateCommand;
 import bot.listener.ReadyListener;
 import com.deepl.api.Translator;
@@ -34,6 +35,8 @@ public class App {
     static {
         // Listeners
         listeners.add(new ReadyListener());
+
+        commands.add(new PingVoiceChatCommand());
     }
 
     public static final List<String> languages = new ArrayList<>();
