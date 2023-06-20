@@ -33,7 +33,7 @@ public class Languages {
         GERMAN("de", ":flag_de:"),
         GREEK("el", ":flag_gr:"),
         ENGLISH_GB("en-gb", ":flag_gb:"),
-        ENGLISH_US("en-gb", ":flag_us:"),
+        ENGLISH_US("en-us", ":flag_us:"),
         SPANISH("es", ":flag_es:"),
         ESTONIAN("et", ":flag_ee:"),
         FINNISH("fi", ":flag_fl:"),
