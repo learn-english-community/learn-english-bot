@@ -78,6 +78,14 @@ public class TranslateCommand extends BotCommand {
             return;
         }
 
+        // Cancel command if the user attempts to ping one of the roles below.
+        if (text.contains("@everyone") || text.contains("@here")) {
+            event.reply("Nice try... but we took care of that! :innocent:")
+                .setEphemeral(true)
+                .queue();
+            return;
+        }
+
         event.deferReply().queue();
 
         // Finally, attempt to make the translation.
