@@ -4,3 +4,8 @@ bin
 .vscode
 .idea
 .env
+
+.classpath
+.project
+*.tmp
+.settings/
