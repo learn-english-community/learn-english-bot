@@ -61,6 +61,7 @@ public class App {
             logger.log(Level.INFO, "Cleaned member daily translation usage!");
         });
 
+
         scheduler.start();
         // Add DeepL supported languages and construct translate command.
         try {
@@ -117,6 +118,10 @@ public class App {
                 .collect(Collectors.toList());
             System.out.println(data.size());
             guild.updateCommands().addCommands(data).queue();
+
+            scheduler.schedule(Constants.CRON_DAILY_MIDDLE, () -> {
+                TOTD.getTotd().executeCron(guild);
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
