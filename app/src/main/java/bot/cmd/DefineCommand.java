@@ -46,7 +46,7 @@ public class DefineCommand extends BotCommand {
         WordsAPIResponse responseGson = new Gson().fromJson(body, WordsAPIResponse.class);
 
         if (jsonObject.has("success") && !responseGson.isSuccess()) {
-            event.getHook().editOriginal("I am not familiar with that word!")
+            event.getHook().editOriginal("I am not familiar with that word! :pensive:")
                 .queue();
             return;
         }
