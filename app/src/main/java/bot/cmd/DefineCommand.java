@@ -38,7 +38,7 @@ public class DefineCommand extends BotCommand {
         event.deferReply().queue();
 
         HttpResponse<String> response = Unirest.get(Constants.WORDS_API_URL + word)
-            .header("X-RapidAPI-Key", App.getenv("KEY_WORDSAPI"))
+            .header("X-RapidAPI-Key", App.getenv("KEY_RAPID_API"))
             .asString();
 
         String body = response.getBody();

@@ -1,9 +1,6 @@
 package bot;
 
-import bot.cmd.BotCommand;
-import bot.cmd.DefineCommand;
-import bot.cmd.PingVoiceChatCommand;
-import bot.cmd.TranslateCommand;
+import bot.cmd.*;
 import bot.listener.ReadyListener;
 import com.deepl.api.Translator;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -43,6 +40,7 @@ public class App {
 
         commands.add(new PingVoiceChatCommand());
         commands.add(new DefineCommand());
+        commands.add(new TOTDCommand());
     }
 
     public static final List<String> languages = new ArrayList<>();
@@ -60,6 +58,7 @@ public class App {
             TranslateCommand.getUsages().clear();
             logger.log(Level.INFO, "Cleaned member daily translation usage!");
         });
+
 
         scheduler.start();
         // Add DeepL supported languages and construct translate command.
@@ -115,8 +114,13 @@ public class App {
                     return scd;
                 })
                 .collect(Collectors.toList());
-            System.out.println(data.size());
             guild.updateCommands().addCommands(data).queue();
+
+            // TOTD stuff
+            TOTD.getTotd().createFallbackTopic();
+            scheduler.schedule(Constants.CRON_DAILY_MIDDLE, () -> {
+                TOTD.getTotd().executeCron(guild);
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
