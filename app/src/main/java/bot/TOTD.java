@@ -7,10 +7,24 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
+import java.util.Random;
+
 public class TOTD {
     private static TOTD totd;
 
     private Topic topic;
+
+    // For those, awkward moments when we can't communicate
+    // with the API.
+    private static final String[] fallbackTopics = {
+        "Where’s the most beautiful place you’ve ever been?",
+        "What are you going to do for your birthday this year?",
+        "What hobby have you always wanted to try?",
+        "What do you like to do on weekends?",
+        "Where would you go if you could go anywhere?",
+        "What’s your biggest goal right now?",
+        "What’s your favorite thing about being you?"
+    };
 
     private TOTD() {}
 
@@ -43,6 +57,12 @@ public class TOTD {
             getNewTopic();
             announce(chatChannel);
         }
+    }
+
+    public void createFallbackTopic() {
+        topic = new Topic();
+        topic.setTopic(fallbackTopics[new Random().nextInt(fallbackTopics.length)]);
+        System.out.println(topic.getTopic());
     }
 
     public static TOTD getTotd() {
