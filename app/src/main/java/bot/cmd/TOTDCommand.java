@@ -11,9 +11,6 @@ public class TOTDCommand extends BotCommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        String topic = TOTD.getTotd().getTopic();
-        String message = "**Today's topic is**: " + topic + " :thinking:";
-
-        event.reply(message).queue();
+        event.reply(TOTD.getTotd().constructTopicMessage()).queue();
     }
 }

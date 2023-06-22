@@ -45,7 +45,7 @@ public class TOTD {
             App.logger.warn("Tried to announce TOTD but role was not found.");
             return;
         }
-        String message = totdRole.getAsMention() + " " + topic.getTopic();
+        String message = totdRole.getAsMention() + " " + constructTopicMessage();
 
         channel.sendMessage(message).queue();
     }
@@ -63,6 +63,11 @@ public class TOTD {
         topic = new Topic();
         topic.setTopic(fallbackTopics[new Random().nextInt(fallbackTopics.length)]);
         System.out.println(topic.getTopic());
+    }
+
+    public String constructTopicMessage() {
+        String topic = totd.getTopic();
+        return "**Today's topic is**: " + topic + " :thinking:";
     }
 
     public static TOTD getTotd() {
