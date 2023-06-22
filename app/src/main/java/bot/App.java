@@ -1,9 +1,6 @@
 package bot;
 
-import bot.cmd.BotCommand;
-import bot.cmd.DefineCommand;
-import bot.cmd.PingVoiceChatCommand;
-import bot.cmd.TranslateCommand;
+import bot.cmd.*;
 import bot.listener.ReadyListener;
 import com.deepl.api.Translator;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -43,6 +40,7 @@ public class App {
 
         commands.add(new PingVoiceChatCommand());
         commands.add(new DefineCommand());
+        commands.add(new TOTDCommand());
     }
 
     public static final List<String> languages = new ArrayList<>();

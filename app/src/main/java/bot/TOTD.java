@@ -28,7 +28,7 @@ public class TOTD {
 
     private TOTD() {}
 
-    public void getNewTopic() {
+    private void getNewTopic() {
         String response = Unirest.get(Constants.TOTD_API_URL)
             .header("X-RapidAPI-Key", App.getenv("KEY_RAPID_API"))
             .asString().getBody();
@@ -66,7 +66,14 @@ public class TOTD {
     }
 
     public static TOTD getTotd() {
-        return totd != null ? totd : new TOTD();
+        if (totd == null)
+            totd = new TOTD();
+
+        return totd;
+    }
+
+    public String getTopic() {
+        return topic.getTopic();
     }
 
     static class Topic {
