@@ -16,4 +16,4 @@ To run the Learn English project locally, follow these steps:
 	`./gradlew build`
 
 ## Contributing
-Contributions to the Learn English Bot are welcome!
+Contributions to the Learn English Bot are welcome! Make sure that you check out the [CONTRIBUTING](CONTRIBUTING) file for more details!
