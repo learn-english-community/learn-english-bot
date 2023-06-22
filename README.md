@@ -15,5 +15,8 @@ To run the Learn English project locally, follow these steps:
 3.  Build the project using Gradle:
 	`./gradlew build`
 
+## TODO
+We have a Trello bot for our task list! You should check it out [here](https://trello.com/b/41aqc4OD/discord-bot).
+
 ## Contributing
 Contributions to the Learn English Bot are welcome! Make sure that you check out the [CONTRIBUTING](CONTRIBUTING) file for more details!
