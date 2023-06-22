@@ -114,7 +114,6 @@ public class App {
                     return scd;
                 })
                 .collect(Collectors.toList());
-            System.out.println(data.size());
             guild.updateCommands().addCommands(data).queue();
 
             // TOTD stuff

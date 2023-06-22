@@ -33,7 +33,6 @@ public class TOTD {
             .header("X-RapidAPI-Key", App.getenv("KEY_RAPID_API"))
             .asString().getBody();
 
-        System.out.println(response);
         this.topic = new GsonBuilder().create().fromJson(response, Topic.class);
     }
 
@@ -62,7 +61,6 @@ public class TOTD {
     public void createFallbackTopic() {
         topic = new Topic();
         topic.setTopic(fallbackTopics[new Random().nextInt(fallbackTopics.length)]);
-        System.out.println(topic.getTopic());
     }
 
     public String constructTopicMessage() {
