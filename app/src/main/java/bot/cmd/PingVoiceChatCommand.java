@@ -32,7 +32,7 @@ public class PingVoiceChatCommand extends BotCommand {
         AudioChannelUnion userVcChannel = voiceState.getChannel();
 
         if (userVcChannel == null) {
-            event.reply("You need to be in a voice channel to execute this command!")
+            event.reply("You need to be in a voice channel to execute this command! :loud_sound:")
                 .setEphemeral(true)
                 .queue();
             return;
@@ -43,7 +43,7 @@ public class PingVoiceChatCommand extends BotCommand {
         boolean isPublic = permOverride.isEmpty() || !permOverride.get().getDenied().contains(Permission.VOICE_CONNECT);
 
         if (!isPublic) {
-            event.reply("You need to be in a public voice channel to execute this command!")
+            event.reply("You need to be in a public voice channel to execute this command! :unlock:")
                 .setEphemeral(true)
                 .queue();
             return;
@@ -60,7 +60,7 @@ public class PingVoiceChatCommand extends BotCommand {
 
         event.reply(vcRole.getAsMention() + " Join "
             + event.getUser().getAsMention() + " for a conversation in "
-            + userVcChannel.getAsMention() + "!")
+            + userVcChannel.getAsMention() + "! :microphone2:")
             .queue();
     }
 
