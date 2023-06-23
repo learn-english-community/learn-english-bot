@@ -8,6 +8,7 @@ import it.sauronsoftware.cron4j.Scheduler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -121,6 +122,11 @@ public class App {
             scheduler.schedule(Constants.CRON_DAILY_MIDDLE, () -> {
                 TOTD.getTotd().executeCron(guild);
             });
+
+            // WOTD stuff
+            TextChannel wotdChannel = guild.getTextChannelById(App.getenv("CHANNEL_ID_WOTD"));
+            if (wotdChannel != null)
+                WOTD.getWotd().announce(wotdChannel);
         } catch (Exception e) {
             e.printStackTrace();
         }

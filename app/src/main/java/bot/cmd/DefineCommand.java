@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import bot.App;
 import bot.Constants;
+import bot.Dictionary;
 import bot.model.WordsAPIResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,84 +35,18 @@ public class DefineCommand extends BotCommand {
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         String word = event.getOption("word").getAsString();
+        MessageEmbed embed = Dictionary.getDictionary().getWordDefinition(word).build();
 
         event.deferReply().queue();
 
-        HttpResponse<String> response = Unirest.get(Constants.WORDS_API_URL + word)
-            .header("X-RapidAPI-Key", App.getenv("KEY_RAPID_API"))
-            .asString();
-
-        String body = response.getBody();
-        JSONObject jsonObject = new JSONObject(body);
-        WordsAPIResponse responseGson = new Gson().fromJson(body, WordsAPIResponse.class);
-
-        if (jsonObject.has("success") && !responseGson.isSuccess()) {
+        if (embed == null) {
             event.getHook().editOriginal("I am not familiar with that word! :pensive:")
                 .queue();
             return;
         }
 
-        EmbedBuilder embed = new EmbedBuilder();
-        String responseWord = responseGson.getWord();
-
-        String ipa = String.format("[%s]", responseGson.getPronunciation().getAll());
-
-        // Constant data
-        embed.setTitle("Learn English™ Dictionary");
-        embed.setFooter("• Data provided by WordsAPI");
-        embed.setColor(39129);
-
-        embed.setDescription(responseWord + " – " + ipa);
-        final String emptyFieldLine = "> \u200E";
-        for (WordsAPIResponse.Definition definition : responseGson.getResults()) {
-            if (embed.getFields().size() >= Constants.MAX_DEFINITION_FIELDS)
-                break;
-
-            String name = definition.getPartOfSpeech();
-            StringBuilder value = new StringBuilder();
-            String synonyms = definition.getSynonyms() != null ?
-                definition.getSynonyms().stream()
-                .distinct()
-                .collect(Collectors.joining(", ")) : null;
-            String similarTo = definition.getSimilarTo() != null ?
-                definition.getSimilarTo().stream()
-                .distinct()
-                .collect(Collectors.joining(", ")) : null;
-
-            List<String> exampleSentences = definition.getExamples();
-            String exampleLine = "";
-            if (exampleSentences != null) {
-                exampleLine = "> *\"" + exampleSentences.get(0) + "\"*";
-            }
-
-            value.append("> " + definition.getDefinition() + System.lineSeparator());
-
-            if (synonyms != null && similarTo != null) {
-                value.append(emptyFieldLine + System.lineSeparator());
-                value.append("> " + toHeader("Synonyms") + synonyms + System.lineSeparator());
-                value.append("> " + toHeader("Similar to") + similarTo + System.lineSeparator());
-            } else if (synonyms != null) {
-                value.append(emptyFieldLine + System.lineSeparator());
-                value.append("> " + toHeader("Synonyms") + synonyms + System.lineSeparator());
-            } else if (similarTo != null) {
-                value.append(emptyFieldLine + System.lineSeparator());
-                value.append("> " + toHeader("Similar to") + similarTo + System.lineSeparator());
-            }
-
-            if (!exampleLine.isEmpty()) {
-                value.append(emptyFieldLine + System.lineSeparator());
-                value.append(exampleLine);
-            }
-
-            MessageEmbed.Field field = new MessageEmbed.Field(name, value.toString(), false);
-            embed.addField(field);
-        }
-
-        event.getHook().editOriginalEmbeds(embed.build()).queue();
+        event.getHook().editOriginalEmbeds(embed).queue();
     }
 
-    private static String toHeader(String title) {
-        return "__**" + title + "**__: ";
-    }
 }
 
