@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.util.Random;
 
-public class TOTD {
-    private static TOTD totd;
+public class TOTDHandler {
+    private static TOTDHandler totd;
 
     private Topic topic;
 
@@ -26,7 +26,7 @@ public class TOTD {
         "What’s your favorite thing about being you?"
     };
 
-    private TOTD() {}
+    private TOTDHandler() {}
 
     private void getNewTopic() {
         String response = Unirest.get(Constants.TOTD_API_URL)
@@ -68,9 +68,9 @@ public class TOTD {
         return "**Today's topic is**: " + topic + " :thinking:";
     }
 
-    public static TOTD getTotd() {
+    public static TOTDHandler getTotd() {
         if (totd == null)
-            totd = new TOTD();
+            totd = new TOTDHandler();
 
         return totd;
     }

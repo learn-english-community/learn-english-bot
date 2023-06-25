@@ -6,10 +6,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.util.Objects;
 
-public class WOTD {
-    private static WOTD wotd;
+public class WOTDHandler {
+    private static WOTDHandler wotd;
 
-    private WOTD() {}
+    private WOTDHandler() {}
 
     public void announce(TextChannel textChannel) {
         Role role = Objects.requireNonNull(
@@ -24,9 +24,9 @@ public class WOTD {
         textChannel.sendMessage(role.getAsMention()).setEmbeds(embed.build()).queue();
     }
 
-    public static WOTD getWotd() {
+    public static WOTDHandler getWotd() {
         if (wotd == null)
-            wotd = new WOTD();
+            wotd = new WOTDHandler();
 
         return wotd;
     }

@@ -126,7 +126,7 @@ public class App {
             // WOTD stuff
             TextChannel wotdChannel = guild.getTextChannelById(App.getenv("CHANNEL_ID_WOTD"));
             if (wotdChannel != null)
-                WOTD.getWotd().announce(wotdChannel);
+                WOTDHandler.getWotd().announce(wotdChannel);
         } catch (Exception e) {
             e.printStackTrace();
         }
