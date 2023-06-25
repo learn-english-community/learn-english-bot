@@ -118,9 +118,9 @@ public class App {
             guild.updateCommands().addCommands(data).queue();
 
             // TOTD stuff
-            TOTD.getTotd().createFallbackTopic();
+            TOTDHandler.getTotd().createFallbackTopic();
             scheduler.schedule(Constants.CRON_DAILY_MIDDLE, () -> {
-                TOTD.getTotd().executeCron(guild);
+                TOTDHandler.getTotd().executeCron(guild);
             });
 
             // WOTD stuff
