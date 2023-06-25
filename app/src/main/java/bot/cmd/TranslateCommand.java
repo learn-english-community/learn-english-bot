@@ -11,8 +11,22 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.*;
 
+/**
+ * Represents the "translate" command.
+ * <p>
+ * It allows users to translate a text into a different language,
+ * with the help of the DeepL API.
+ */
 public class TranslateCommand extends BotCommand {
 
+    /**
+     * Keeps track of the number of command usages from different users.
+     * <p>
+     * The key represents a String representation of the user's ID, whereas
+     * the value represents the amount of uses the user has made in a day.
+     * A cron task is scheduled to reset these limits while the bot is
+     * running. This is done to prevent people from spamming the command.
+     */
     private static final Map<String, Integer> usages = new HashMap<>();
 
     public TranslateCommand() {
@@ -107,6 +121,9 @@ public class TranslateCommand extends BotCommand {
         }
     }
 
+    /**
+     * @return A map that keeps track of the amount of uses per user.
+     */
     public static Map<String, Integer> getUsages() {
         return usages;
     }

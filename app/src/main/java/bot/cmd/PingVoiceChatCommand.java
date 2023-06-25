@@ -11,8 +11,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Represents the "pingvc" slash command.
+ */
 public class PingVoiceChatCommand extends BotCommand {
 
+    /**
+     * Keeps track of the number of command usages from different users.
+     * <p>
+     * The key represents a String representation of the user's ID, whereas
+     * the value represents the amount of uses the user has made in a day.
+     * A cron task is scheduled to reset these limits while the bot is
+     * running. This is done to prevent people from spamming the command.
+     */
     private static final Map<String, Integer> usages = new HashMap<>();
 
     public PingVoiceChatCommand() {
@@ -31,6 +42,7 @@ public class PingVoiceChatCommand extends BotCommand {
         if (voiceState == null) return;
         AudioChannelUnion userVcChannel = voiceState.getChannel();
 
+        // If the user is not in any voice channel.
         if (userVcChannel == null) {
             event.reply("You need to be in a voice channel to execute this command! :loud_sound:")
                 .setEphemeral(true)
@@ -38,6 +50,8 @@ public class PingVoiceChatCommand extends BotCommand {
             return;
         }
 
+        // Acquire permission override state and use it to check if the
+        // voice channel that the user is in is publicly accessible.
         Optional<PermissionOverride> permOverride = userVcChannel.asVoiceChannel().getPermissionOverrides().stream()
             .filter(po -> po.getRole().equals(guild.getPublicRole())).findFirst();
         boolean isPublic = permOverride.isEmpty() || !permOverride.get().getDenied().contains(Permission.VOICE_CONNECT);
@@ -49,6 +63,7 @@ public class PingVoiceChatCommand extends BotCommand {
             return;
         }
 
+        // A handle of the @Voice Chat role.
         Role vcRole = Objects.requireNonNull(
             event.getGuild()).getRoleById(App.getenv("ROLE_ID_VOICE_CHAT")
         );
@@ -64,6 +79,9 @@ public class PingVoiceChatCommand extends BotCommand {
             .queue();
     }
 
+    /**
+     * @return A map that keeps track of the amount of uses per user.
+     */
     public static Map<String, Integer> getUsages() {
         return usages;
     }
