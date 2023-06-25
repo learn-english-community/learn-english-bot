@@ -3,14 +3,29 @@ package bot.util;
 import com.deepl.api.Language;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
+/**
+ * A languages utility that primarily assists with
+ * converting between country flags and language codes.
+ */
 public class Languages {
 
+    /**
+     * Represents a list of all the languages currently
+     * supported by the DeepL API.
+     * <p>
+     * It gets populated whenever the bot gets executed.
+     */
     public static List<Language> languages = new ArrayList<>();
 
+    /**
+     * Converts a language's display name to its corresponding code.
+     *
+     * @param language The language to convert
+     * @return The corresponding code
+     */
     public static String getCodeFromDisplay(String language) {
         return languages.stream()
             .filter(l -> l.getName().equalsIgnoreCase(language))
@@ -18,6 +33,12 @@ public class Languages {
             .findFirst().orElse("en");
     }
 
+    /**
+     * Converts a language's code to its corresponding Discord flag emoji.
+     *
+     * @param code The language's code to convert
+     * @return The corresponding Discord flag emoji
+     */
     public static String getEmojiFromCode(String code) {
 
         for (LangEmoji le : EnumSet.allOf(LangEmoji.class)) {

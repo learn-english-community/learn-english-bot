@@ -11,11 +11,26 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Mostly a singleton class that assists with generating fancy dictionary-like
+ * definitions for a single word. Utilises the WordsAPI.
+ */
 public class Dictionary {
+
+    /**
+     * The instance of this class.
+     */
     private static Dictionary dictionary;
 
     private Dictionary() {}
 
+    /**
+     * Gets a WordsAPI response and converts it into a fancy Discord
+     * embed.
+     *
+     * @param responseGson The WordsAPI response
+     * @return An EmbedBuilder instance of the embed
+     */
     private EmbedBuilder getDefinitionEmbed(WordsAPIResponse responseGson) {
         EmbedBuilder embed = new EmbedBuilder();
         String responseWord = responseGson.getWord();
@@ -87,6 +102,14 @@ public class Dictionary {
         return embed;
     }
 
+    /**
+     * Performs some checks on the WordsAPI response to make sure that
+     * it can be converted into a fancy Discord embed.
+     *
+     * @param response The WordsAPI response
+     * @return The WordsAPI response as an object, null if the response
+     *  is invalid
+     */
     private WordsAPIResponse processResponse(HttpResponse<String> response) {
         String body = response.getBody();
         JSONObject jsonObject = new JSONObject(body);
@@ -98,6 +121,14 @@ public class Dictionary {
         return responseGson;
     }
 
+    /**
+     * Performs an API call to the WordsAPI and responds with
+     * a fancy Discord embed.
+     *
+     * @param word The word to search for
+     * @return An EmbedBuilder instance of the Discord embed,
+     *  otherwise returns null if the response is malformed
+     */
     public EmbedBuilder getWordDefinition(String word) {
         HttpResponse<String> response = Unirest.get(Constants.WORDS_API_URL + word)
             .header("X-RapidAPI-Key", App.getenv("KEY_RAPID_API"))
@@ -110,6 +141,23 @@ public class Dictionary {
         return getDefinitionEmbed(wordsObject);
     }
 
+    /**
+     * Performs an API call to the WordsAPI to get a random word
+     * and responds with a fancy Discord embed.
+     * <p>
+     * This method will keep making requests to the API until
+     * it gets a word with a definition. It does <b>not</b> have
+     * a built-in limit, so this could theoretically spawn rate
+     * limit errors if it keeps coming up with words that are
+     * lacking definitions.
+     * <p>
+     * One way to fix this would be to specify this kind of
+     * requirement via the API itself, however it is currently
+     * impossible to do so, leading us to this solution instead.
+     *
+     * @return An EmbedBuilder instance of the Discord embed,
+     *  otherwise returns null if the response is malformed
+     */
     public EmbedBuilder getRandomWord() {
         WordsAPIResponse wordsObject;
         do {
@@ -126,6 +174,12 @@ public class Dictionary {
         return getDefinitionEmbed(wordsObject);
     }
 
+    /**
+     * Converts text to a Markdown style header.
+     *
+     * @param title The title to convert
+     * @return A Markdown style header of the title
+     */
     private static String toHeader(String title) {
         return "__**" + title + "**__: ";
     }
