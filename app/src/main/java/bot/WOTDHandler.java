@@ -1,6 +1,7 @@
 package bot;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
@@ -17,6 +18,22 @@ public class WOTDHandler {
     private static WOTDHandler wotd;
 
     private WOTDHandler() {}
+
+    /**
+     * Primarily used by the cron scheduler, and it acts as the executing method once
+     * triggered.
+     * <p>
+     * Upon execution, it gets a random word from the dictionary using the right API,
+     * and it announces it to the WOTD channel.
+     *
+     * @param guild A reference of the guild to perform this to
+     */
+    public void executeCron(Guild guild) {
+        TextChannel chatChannel = guild.getTextChannelById(App.getenv("CHANNEL_ID_WOTD"));
+
+        if (chatChannel != null)
+            announce(chatChannel);
+    }
 
     /**
      * Attempts to announce the word of the day to the given channel.

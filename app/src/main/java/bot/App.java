@@ -117,16 +117,13 @@ public class App {
                 .collect(Collectors.toList());
             guild.updateCommands().addCommands(data).queue();
 
-            // TOTD stuff
+            // TOTD and WOTD stuff
             TOTDHandler.getTotd().createFallbackTopic();
             scheduler.schedule(Constants.CRON_DAILY_MIDDLE, () -> {
                 TOTDHandler.getTotd().executeCron(guild);
+                WOTDHandler.getWotd().executeCron(guild);
             });
 
-            // WOTD stuff
-            TextChannel wotdChannel = guild.getTextChannelById(App.getenv("CHANNEL_ID_WOTD"));
-            if (wotdChannel != null)
-                WOTDHandler.getWotd().announce(wotdChannel);
         } catch (Exception e) {
             e.printStackTrace();
         }
