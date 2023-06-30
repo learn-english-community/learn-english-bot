@@ -1,5 +1,6 @@
 package bot;
 
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
@@ -10,6 +11,7 @@ import java.util.Objects;
 /**
  * Manages functions that involve the "word of the day" feature.
  */
+@Log4j2
 public class WOTDHandler {
 
     /**
@@ -48,7 +50,7 @@ public class WOTDHandler {
         );
 
         if (role == null) {
-            App.logger.warn("ROLE_ID_WOTD was not found");
+            log.warn("ROLE_ID_WOTD was not found");
             return;
         }
         EmbedBuilder embed = Dictionary.getDictionary().getRandomWord();

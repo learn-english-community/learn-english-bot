@@ -1,6 +1,7 @@
 package bot.cmd;
 
 import bot.App;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
@@ -14,6 +15,7 @@ import java.util.Optional;
 /**
  * Represents the "pingvc" slash command.
  */
+@Log4j2
 public class PingVoiceChatCommand extends BotCommand {
 
     /**
@@ -69,7 +71,7 @@ public class PingVoiceChatCommand extends BotCommand {
         );
 
         if (vcRole == null) {
-            App.logger.warn("ROLE_ID_VOICE_CHAT was not found");
+            log.warn("ROLE_ID_VOICE_CHAT was not found");
             return;
         }
 

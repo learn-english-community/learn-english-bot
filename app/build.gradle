@@ -8,6 +8,8 @@
 
 plugins {
     id 'application'
+    id 'org.springframework.boot' version '2.4.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
 repositories {
@@ -15,12 +17,16 @@ repositories {
 }
 
 dependencies {
+    implementation "dev.morphia.morphia:morphia-core:2.3.5"
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.mockito:mockito-core:5.2.0"
 
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
     implementation 'com.konghq:unirest-java:3.11.09'
-    implementation 'com.google.guava:guava:31.1-jre'
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
     implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
     implementation 'org.apache.logging.log4j:log4j-core:2.20.0'

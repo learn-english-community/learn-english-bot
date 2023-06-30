@@ -3,20 +3,27 @@ package bot;
 import bot.cmd.*;
 import bot.listener.ReadyListener;
 import com.deepl.api.Translator;
+import com.mongodb.client.MongoClients;
+import dev.morphia.Datastore;
+import dev.morphia.Morphia;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.sauronsoftware.cron4j.Scheduler;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,13 +31,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class App {
+@SpringBootApplication
+@Component
+@Log4j2
+public class App implements ApplicationRunner {
 
-    public static final Logger logger = LogManager.getLogger();
     public static final Scheduler scheduler = new Scheduler();
+
+    private static Datastore datastore;
 
     private static Dotenv dotenv;
     public static Translator translator;
+
 
     public static List<EventListener> listeners = new ArrayList<>();
     public static List<BotCommand> commands = new ArrayList<>();
@@ -53,13 +65,14 @@ public class App {
             dotenv = null;
         }
 
+        datastore = acquireDatastore();
+
         // Schedule daily translation reset task.
         scheduler.schedule(Constants.CRON_DAILY_MORNING, () -> {
             // Clear all translation usages.
             TranslateCommand.getUsages().clear();
-            logger.log(Level.INFO, "Cleaned member daily translation usage!");
+            App.log.log(Level.INFO, "Cleaned member daily translation usage!");
         });
-
 
         scheduler.start();
         // Add DeepL supported languages and construct translate command.
@@ -97,7 +110,7 @@ public class App {
 
             Optional<Guild> guildOptional = jda.getGuilds().stream().findFirst();
             if (guildOptional.isEmpty()) {
-                logger.error("Unable to find a guild! You need to invite the bot to one" +
+                App.log.error("Unable to find a guild! You need to invite the bot to one" +
                     "before executing this program. Attempting to exit...");
                 System.exit(1);
             }
@@ -129,6 +142,21 @@ public class App {
         }
     }
 
+    private static Datastore acquireDatastore() {
+        final Datastore datastore = Morphia.createDatastore(
+            MongoClients.create(getenv("MORPHIA_URI")),
+            getenv("MORPHIA_DATABASE"));
+
+        datastore.getMapper().mapPackage("bot.entity");
+        datastore.ensureIndexes();
+
+        return datastore;
+    }
+
+    public static Datastore getDatastore() {
+        return datastore;
+    }
+
     // TODO (@christolis): There must be a better way
     // to get environment variables more easily.
     public static String getenv(String key) {
@@ -141,6 +169,11 @@ public class App {
         return value != null ? value : System.getenv(key);
     }
     public static void main(String[] args) {
-        new App().launch();
+        SpringApplication.run(App.class, args).close();
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        launch();
     }
 }

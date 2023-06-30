@@ -3,6 +3,7 @@ package bot.util;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import bot.entity.User;
 import com.deepl.api.Language;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,7 @@ public class LanguagesTest {
 
         languages.forEach(language -> {
             int idx = languages.indexOf(language);
+            mock(User.class);
             Language deeplLanguage = mock(Language.class);
             String languageCode = Languages.LangEmoji.values()[idx].getCode();
 
