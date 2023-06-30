@@ -19,4 +19,4 @@ To run the Learn English project locally, follow these steps:
 We have a Trello board for our task list! You should check it out [here](https://trello.com/b/41aqc4OD/discord-bot).
 
 ## Contributing
-Contributions to the Learn English Bot are welcome! Make sure that you check out the [CONTRIBUTING](CONTRIBUTING) file for more details!
+Contributions to the Learn English Bot are welcome! Make sure that you check out the [CONTRIBUTING](CONTRIBUTING.md) file for more details!
