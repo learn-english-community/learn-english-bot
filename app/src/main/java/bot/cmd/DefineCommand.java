@@ -6,6 +6,7 @@ import bot.entity.word.JournalWord;
 import bot.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -15,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents the "define" command.
@@ -22,6 +26,8 @@ import java.util.Collections;
 @Log4j2
 @Component
 public class DefineCommand extends BotCommand {
+
+    private static final Pattern pattern = Pattern.compile("^(.*?)\\s–");
 
     @Autowired
     private UserService userService;
@@ -57,23 +63,31 @@ public class DefineCommand extends BotCommand {
     public void onButtonInteraction(ButtonInteractionEvent event) {
         if (event.getComponentId().equals("save")) {
             String discordId = event.getUser().getId();
+            Optional<MessageEmbed> embedOptional = event.getMessage().getEmbeds()
+                .stream()
+                .findFirst();
+            if (embedOptional.isEmpty()) return;
+
+            String description = embedOptional.get().getDescription();
+            Matcher matcher = pattern.matcher(description);
+            String word = matcher.find() ? matcher.group(1).trim() : "";
 
             // If the user was not found
             if (!userService.userExists(discordId)) {
-                JournalWord word = JournalWord.builder()
-                    .word("amazing") // TODO: Get actual word.
+                JournalWord journalWord = JournalWord.builder()
+                    .word(word)
                     .timeAdded(System.currentTimeMillis())
                     .build();
 
                 User user = User.builder()
                     .discordId(event.getUser().getId())
-                    .words(Collections.singletonList(word))
+                    .words(Collections.singletonList(journalWord))
                     .build();
 
                 userService.createUser(user);
             }
 
-            event.reply("I saved that word to your journal! :blue_book:")
+            event.reply("I saved the word `" + word + "` to your journal! :blue_book:")
                 .setEphemeral(true)
                 .queue();
         }
