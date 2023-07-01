@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -17,6 +18,7 @@ import java.util.*;
  * It allows users to translate a text into a different language,
  * with the help of the DeepL API.
  */
+@Component
 public class TranslateCommand extends BotCommand {
 
     /**
@@ -40,7 +42,7 @@ public class TranslateCommand extends BotCommand {
             true, true);
 
         try {
-            Languages.languages = App.translator.getTargetLanguages();
+            Languages.languages = App.getTranslator().getTargetLanguages();
             Languages.languages.forEach(language -> targetArg.addOption(language.getName()));
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,7 +106,7 @@ public class TranslateCommand extends BotCommand {
 
         // Finally, attempt to make the translation.
         try {
-            TextResult result = App.translator.translateText(text, null, targetLang);
+            TextResult result = App.getTranslator().translateText(text, null, targetLang);
             Member member = Objects.requireNonNull(event.getMember());
             String displayName = member.getNickname() != null
                 ? member.getNickname() : event.getUser().getName();

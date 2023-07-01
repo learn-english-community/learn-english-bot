@@ -17,11 +17,12 @@ repositories {
 }
 
 dependencies {
-    implementation "dev.morphia.morphia:morphia-core:2.3.5"
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.mockito:mockito-core:5.2.0"
 
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.data:spring-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

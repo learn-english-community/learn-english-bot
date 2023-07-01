@@ -1,10 +1,18 @@
 package bot.entity.word;
 
-import dev.morphia.annotations.Entity;
-import dev.morphia.annotations.Id;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity("words")
+@Document("words")
+@SuperBuilder
+@Getter
+@Setter
+@NoArgsConstructor
 public abstract class Word {
     @Id private ObjectId id;
 
@@ -12,16 +20,4 @@ public abstract class Word {
      * The word text.
      */
     private String word;
-
-    public ObjectId getId() {
-        return id;
-    }
-
-    public String getWord() {
-        return word;
-    }
-
-    public void setWord(String word) {
-        this.word = word;
-    }
 }

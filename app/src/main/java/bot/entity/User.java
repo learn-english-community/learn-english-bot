@@ -1,21 +1,21 @@
 package bot.entity;
 
 import bot.entity.word.JournalWord;
-import dev.morphia.annotations.Entity;
-import dev.morphia.annotations.Id;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Entity("users")
+@Document("users")
 @Builder
 @Getter
 @Setter
 public class User {
-    @Id private ObjectId id;
+    @Id
+    private ObjectId id;
+
 
     /**
      * The Discord ID of the user.

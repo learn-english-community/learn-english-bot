@@ -2,24 +2,36 @@ package bot.service;
 
 import bot.entity.User;
 import bot.repository.UserRepository;
-import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * User service component.
+ */
 @Service
 public class UserService {
-    @Getter
+
     private final UserRepository userRepository;
 
-    public UserService() {
-        this.userRepository = new UserRepository();
+    @Autowired
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public void createUser(@NotNull User user) {
+    /**
+     * Inserts a new user to the database.
+     * @param user The user to insert
+     */
+    public void createUser(@NonNull User user) {
         userRepository.save(user);
     }
 
-    public boolean userExists(@NotNull String discordId) {
-        return userRepository.existsById(discordId);
+    /**
+     * @param discordId The Discord ID of the user.
+     * @return True if the user exists, false if not
+     */
+    public boolean userExists(@NonNull String discordId) {
+        return userRepository.findUserByDiscordId(discordId) != null;
     }
 }

@@ -2,6 +2,7 @@ package bot.cmd;
 
 import bot.TOTDHandler;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import org.springframework.stereotype.Component;
 
 /**
  * Represents the "topic" command.
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
  * command was executed in and lets the user know what the topic
  * of the day is.
  */
+@Component
 public class TOTDCommand extends BotCommand {
 
     public TOTDCommand() {
