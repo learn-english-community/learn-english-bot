@@ -3,6 +3,7 @@ package bot;
 import bot.cmd.*;
 import bot.listener.ReadyListener;
 import com.deepl.api.Translator;
+import com.mongodb.BasicDBObject;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.sauronsoftware.cron4j.Scheduler;
 import lombok.extern.log4j.Log4j2;
@@ -18,9 +19,9 @@ import org.apache.logging.log4j.Level;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.util.ArrayList;
@@ -31,7 +32,6 @@ import java.util.stream.Collectors;
 
 @SpringBootApplication
 @EnableMongoRepositories
-@EnableAutoConfiguration
 @ComponentScan(basePackages = {"bot", "bot.cmd", "bot.service"})
 @Log4j2
 public class App implements ApplicationRunner {
@@ -44,6 +44,7 @@ public class App implements ApplicationRunner {
     public static List<EventListener> listeners = new ArrayList<>();
     public static List<BotCommand> commands;
 
+    private MongoTemplate mongoTemplate;
 
     // Listeners
     static {
@@ -51,6 +52,14 @@ public class App implements ApplicationRunner {
     }
 
     public void launch() {
+        // Test DB connection
+        try {
+            BasicDBObject ping = new BasicDBObject("ping", "1");
+            mongoTemplate.getDb().runCommand(ping);
+        } catch (Exception e) {
+            log.error("Failed to connect to the MongoDB server! Quitting...");
+            System.exit(1);
+        }
 
         // Schedule daily translation reset task.
         scheduler.schedule(Constants.CRON_DAILY_MORNING, () -> {
