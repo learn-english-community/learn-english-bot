@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SpringBootApplication
@@ -103,19 +105,28 @@ public class App implements ApplicationRunner {
             Guild guild = guildOptional.get();
 
             // Register slash commands
-            log.info("Attempting to register " + commands.size() + " commands...");
-            Collection<CommandData> data = commands.stream()
-                .map(command -> {
-                    SlashCommandData scd = Commands.slash(command.getName(), command.getDescription());
+            Function<BotCommand, CommandData> commandConsumer = (command) -> {
+                SlashCommandData scd = Commands.slash(command.getName(), command.getDescription());
 
-                    command.getArguments().forEach((name, arg) -> scd.addOption(
-                        arg.getType(), name, arg.getDescription(),
-                        arg.isRequired(), arg.shouldAutocomplete()
-                    ));
-                    return scd;
-                })
+                command.getArguments().forEach((name, arg) -> scd.addOption(
+                    arg.getType(), name, arg.getDescription(),
+                    arg.isRequired(), arg.shouldAutocomplete()
+                ));
+                return scd;
+            };
+            log.info("Attempting to register " + commands.size() + " commands...");
+            Collection<CommandData> localData = commands.stream()
+                .filter(cmd -> !cmd.isGlobal())
+                .map(commandConsumer)
                 .collect(Collectors.toList());
-            guild.updateCommands().addCommands(data).queue();
+
+            Collection<CommandData> globalData = commands.stream()
+                .filter(BotCommand::isGlobal)
+                .map(commandConsumer)
+                .collect(Collectors.toList());
+
+            guild.updateCommands().addCommands(localData).queue();
+            jda.updateCommands().addCommands(globalData).queue();
 
             // TOTD and WOTD stuff
             TOTDHandler.getTotd().createFallbackTopic();

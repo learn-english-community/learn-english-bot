@@ -5,6 +5,7 @@ import bot.Constants;
 import bot.util.Languages;
 import com.deepl.api.TextResult;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -32,7 +33,7 @@ public class TranslateCommand extends BotCommand {
     private static final Map<String, Integer> usages = new HashMap<>();
 
     public TranslateCommand() {
-        super("translate", "Translate your text in to a different language!");
+        super("translate", "Translate your text in to a different language!", true);
 
         // Add target argument along with options
         CommandArgument targetArg = new CommandArgument(
@@ -107,9 +108,14 @@ public class TranslateCommand extends BotCommand {
         // Finally, attempt to make the translation.
         try {
             TextResult result = App.getTranslator().translateText(text, null, targetLang);
-            Member member = Objects.requireNonNull(event.getMember());
-            String displayName = member.getNickname() != null
-                ? member.getNickname() : event.getUser().getName();
+            String displayName = event.getUser().getName();
+
+            // If this is on a guild
+            if (event.getChannelType().equals(ChannelType.TEXT)) {
+                Member member = Objects.requireNonNull(event.getMember());
+                displayName = member.getNickname() != null
+                    ? member.getNickname() : event.getUser().getName();
+            }
 
             usages.put(userId, usages.containsKey(userId) ? usages.get(userId) + 1 : 1);
             event.getHook().editOriginal(

@@ -33,7 +33,7 @@ public class DefineCommand extends BotCommand {
     private UserService userService;
 
     public DefineCommand() {
-        super("define", "Get a word definition!");
+        super("define", "Get a word definition!", true);
 
         getArguments().put("word", new CommandArgument(
             OptionType.STRING,

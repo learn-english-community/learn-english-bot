@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class TOTDCommand extends BotCommand {
 
     public TOTDCommand() {
-        super("topic", "Get today's topic to talk about!");
+        super("topic", "Get today's topic to talk about!", false);
     }
 
     @Override

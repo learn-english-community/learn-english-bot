@@ -31,7 +31,7 @@ public class PingVoiceChatCommand extends BotCommand {
     private static final Map<String, Integer> usages = new HashMap<>();
 
     public PingVoiceChatCommand() {
-        super("pingvc", "Let other members know that you want to voice chat!");
+        super("pingvc", "Let other members know that you want to voice chat!", false);
     }
 
     @Override

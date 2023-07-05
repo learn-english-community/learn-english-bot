@@ -1,5 +1,6 @@
 package bot.cmd;
 
+import lombok.Getter;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -26,9 +27,13 @@ public abstract class BotCommand extends ListenerAdapter {
     /** A map of all the possible command arguments. */
     private final Map<String, CommandArgument> arguments = new HashMap<>();
 
-    public BotCommand(String name, String description) {
+    @Getter
+    private final boolean isGlobal;
+
+    public BotCommand(String name, String description, boolean isGlobal) {
         this.name = name;
         this.description = description;
+        this.isGlobal = isGlobal;
     }
 
     /**
