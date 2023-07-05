@@ -85,7 +85,25 @@ public class DefineCommand extends BotCommand {
                     .build();
 
                 userService.createUser(user);
+
+                event.reply("I saved the word `" + word + "` to your journal! :blue_book:")
+                    .setEphemeral(true)
+                    .queue();
             }
+
+            if (userService.hasJournalWord(discordId, word)) {
+                event.reply("The word `" + word + "` is already in your journal! :star:")
+                    .setEphemeral(true)
+                    .queue();
+                return;
+            }
+
+            JournalWord journalWord = JournalWord.builder()
+                .word(word)
+                .timeAdded(System.currentTimeMillis())
+                .build();
+
+            userService.addWord(discordId, journalWord);
 
             event.reply("I saved the word `" + word + "` to your journal! :blue_book:")
                 .setEphemeral(true)

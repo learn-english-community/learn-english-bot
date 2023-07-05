@@ -1,6 +1,8 @@
 package bot.repository;
 
 import bot.entity.User;
+import bot.entity.word.JournalWord;
+import bot.entity.word.Word;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,6 +11,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
-    public User findUserById(String id);
-    public User findUserByDiscordId(String discordId);
+    User findUserByDiscordId(String discordId);
 }
