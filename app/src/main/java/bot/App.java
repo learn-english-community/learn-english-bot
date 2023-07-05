@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.apache.logging.log4j.Level;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -44,6 +45,7 @@ public class App implements ApplicationRunner {
     public static List<EventListener> listeners = new ArrayList<>();
     public static List<BotCommand> commands;
 
+    @Autowired
     private MongoTemplate mongoTemplate;
 
     // Listeners
