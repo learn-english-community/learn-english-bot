@@ -29,13 +29,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SpringBootApplication
 @EnableMongoRepositories
-@ComponentScan(basePackages = {"bot", "bot.cmd", "bot.service"})
 @Log4j2
 public class App implements ApplicationRunner {
 
@@ -49,6 +47,9 @@ public class App implements ApplicationRunner {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private WOTDHandler wotdHandler;
 
     // Listeners
     static {
@@ -132,9 +133,8 @@ public class App implements ApplicationRunner {
             TOTDHandler.getTotd().createFallbackTopic();
             scheduler.schedule(Constants.CRON_DAILY_MIDDLE, () -> {
                 TOTDHandler.getTotd().executeCron(guild);
-                WOTDHandler.getWotd().executeCron(guild);
+                wotdHandler.executeCron(guild);
             });
-
         } catch (Exception e) {
             e.printStackTrace();
         }

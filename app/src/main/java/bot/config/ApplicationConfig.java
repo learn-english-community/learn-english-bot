@@ -47,4 +47,9 @@ public class ApplicationConfig extends AbstractMongoClientConfiguration {
     protected String getDatabaseName() {
         return Constants.DATABASE_NAME;
     }
+
+    @Override
+    protected boolean autoIndexCreation() {
+        return true;
+    }
 }

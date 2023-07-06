@@ -1,10 +1,15 @@
 package bot;
 
+import bot.entity.word.Word;
+import bot.service.WordCacheService;
+import bot.view.WordCacheView;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
@@ -12,6 +17,7 @@ import java.util.Objects;
  * Manages functions that involve the "word of the day" feature.
  */
 @Log4j2
+@Component
 public class WOTDHandler {
 
     /**
@@ -19,7 +25,12 @@ public class WOTDHandler {
      */
     private static WOTDHandler wotd;
 
-    private WOTDHandler() {}
+    private final WordCacheService wordCacheService;
+
+    @Autowired
+    private WOTDHandler(WordCacheService wordCacheService) {
+        this.wordCacheService = wordCacheService;
+    }
 
     /**
      * Primarily used by the cron scheduler, and it acts as the executing method once
@@ -53,17 +64,8 @@ public class WOTDHandler {
             log.warn("ROLE_ID_WOTD was not found");
             return;
         }
-        EmbedBuilder embed = Dictionary.getDictionary().getRandomWord();
+        WordCacheView wordCacheView = new WordCacheView();
+        EmbedBuilder embed = wordCacheView.getDefinitionEmbed(wordCacheService.getRandomWordFromAPI());
         textChannel.sendMessage(role.getAsMention()).setEmbeds(embed.build()).queue();
-    }
-
-    /**
-     * @return The only instance of the WOTDHandler
-     */
-    public static WOTDHandler getWotd() {
-        if (wotd == null)
-            wotd = new WOTDHandler();
-
-        return wotd;
     }
 }

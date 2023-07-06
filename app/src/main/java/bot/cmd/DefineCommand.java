@@ -1,9 +1,10 @@
 package bot.cmd;
 
-import bot.Dictionary;
 import bot.entity.User;
 import bot.entity.word.JournalWord;
 import bot.service.UserService;
+import bot.service.WordCacheService;
+import bot.view.WordCacheView;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -32,6 +33,9 @@ public class DefineCommand extends BotCommand {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private WordCacheService wordCacheService;
+
     public DefineCommand() {
         super("define", "Get a word definition!", true);
 
@@ -45,7 +49,10 @@ public class DefineCommand extends BotCommand {
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         String word = event.getOption("word").getAsString();
-        EmbedBuilder embedBuilder = Dictionary.getDictionary().getWordDefinition(word);
+        WordCacheView wordCacheView = new WordCacheView();
+        EmbedBuilder embedBuilder = wordCacheView.getDefinitionEmbed(
+            wordCacheService.getWordFromCacheOrAPI(word)
+        );
 
         if (embedBuilder == null) {
             event.reply("I am not familiar with that word! :pensive:").setEphemeral(true)
