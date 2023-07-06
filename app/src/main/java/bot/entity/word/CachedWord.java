@@ -1,6 +1,5 @@
 package bot.entity.word;
 
-import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +9,7 @@ import java.util.List;
 
 @Document("cache_words")
 public class CachedWord extends Word {
+
     @Getter @Setter
     private long lastUpdate;
 
@@ -23,7 +23,8 @@ public class CachedWord extends Word {
     private Syllables syllables;
 
     @SerializedName("pronunciation")
-    private JsonElement pronunciation;
+    @Getter @Setter
+    private String pronunciation;
 
     @SerializedName("frequency")
     private double frequency;
@@ -50,14 +51,6 @@ public class CachedWord extends Word {
 
     public void setSyllables(Syllables syllables) {
         this.syllables = syllables;
-    }
-
-    public JsonElement getPronunciation() {
-        return pronunciation;
-    }
-
-    public void setPronunciation(JsonElement pronunciation) {
-        this.pronunciation = pronunciation;
     }
 
     public double getFrequency() {
@@ -216,5 +209,10 @@ public class CachedWord extends Word {
         public void setList(List<String> list) {
             this.list = list;
         }
+    }
+
+    public static class Pronunciation {
+        @Getter @Setter
+        private String content;
     }
 }

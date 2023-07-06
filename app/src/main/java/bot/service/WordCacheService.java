@@ -3,8 +3,10 @@ package bot.service;
 import bot.App;
 import bot.Constants;
 import bot.entity.word.CachedWord;
+import bot.entity.word.CachedWordDeserializer;
 import bot.repository.WordCacheRepository;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import kong.unirest.json.JSONObject;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -37,18 +40,23 @@ public class WordCacheService {
         return wordCacheRepository.getCachedWordByWord(word);
     }
 
-    public CachedWord getWordFromCacheOrAPI(String word) {
-        CachedWord cachedWord = findWord(word);
+    public Optional<CachedWord> getWordFromCacheOrAPI(String wordString) {
+        CachedWord cachedWord = findWord(wordString);
 
-        if (cachedWord != null && isWordOutdated(word)) {
-            wordCacheRepository.deleteCachedWordByWord(word);
+        if (cachedWord != null && isWordOutdated(wordString)) {
+            wordCacheRepository.deleteCachedWordByWord(wordString);
             cachedWord = null;
         }
 
         if (cachedWord == null) {
             long now = System.currentTimeMillis();
             AtomicInteger index = new AtomicInteger(0);
-            cachedWord = getWordFromAPI(word);
+            Optional<CachedWord> word = getWordFromAPI(wordString);
+
+            if (word.isEmpty())
+                return Optional.empty();
+
+            cachedWord = word.get();
 
             List<CachedWord.Definition> results = cachedWord.getResults();
             cachedWord.setLastUpdate(now);
@@ -62,7 +70,7 @@ public class WordCacheService {
             wordCacheRepository.save(cachedWord);
         }
 
-        return cachedWord;
+        return Optional.of(cachedWord);
     }
 
     /**
@@ -102,7 +110,7 @@ public class WordCacheService {
      * @param word The word to find
      * @return The CachedWord
      */
-    public CachedWord getWordFromAPI(String word) {
+    public Optional<CachedWord> getWordFromAPI(String word) {
         HttpResponse<String> response = Unirest.get(Constants.WORDS_API_URL + word)
             .header("X-RapidAPI-Key", App.getenv("KEY_RAPID_API"))
             .asString();
@@ -128,19 +136,16 @@ public class WordCacheService {
      *  otherwise returns null if the response is malformed
      */
     public CachedWord getRandomWordFromAPI() {
-        CachedWord wordsObject;
+        Optional<CachedWord> wordsObject;
         do {
             HttpResponse<String> response = Unirest.get(Constants.WORDS_API_URL)
                 .header("X-RapidAPI-Key", App.getenv("KEY_RAPID_API"))
                 .queryString("random", true)
                 .asString();
             wordsObject = processHTTPResponse(response);
+        } while (wordsObject.isEmpty());
 
-            if (wordsObject == null)
-                return null;
-        } while (wordsObject.getResults() == null || wordsObject.getResults().isEmpty());
-
-        return wordsObject;
+        return wordsObject.get();
     }
     /**
      * Performs some checks on the WordsAPI response to make sure that
@@ -150,15 +155,19 @@ public class WordCacheService {
      * @return The WordsAPI response as an object, null if the response
      *  is invalid
      */
-    private CachedWord processHTTPResponse(HttpResponse<String> response) {
+    private Optional<CachedWord> processHTTPResponse(HttpResponse<String> response) {
         String body = response.getBody();
         JSONObject jsonObject = new JSONObject(body);
-        CachedWord responseGson = new Gson().fromJson(body, CachedWord.class);
+
+        if (jsonObject.has("success") && !jsonObject.getBoolean("success"))
+            return Optional.empty();
+
+        CachedWord responseGson = new GsonBuilder()
+            .registerTypeAdapter(CachedWord.class, new CachedWordDeserializer())
+            .create()
+            .fromJson(body, CachedWord.class);
 
         log.debug("Called WordsAPI for word " + responseGson.getWord());
-        if (jsonObject.has("success") && !responseGson.isSuccess())
-            return null;
-
-        return responseGson;
+        return Optional.of(responseGson);
     }
 }

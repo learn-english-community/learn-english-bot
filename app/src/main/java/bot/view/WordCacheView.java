@@ -1,11 +1,7 @@
 package bot.view;
 
-import bot.App;
 import bot.Constants;
 import bot.entity.word.CachedWord;
-import com.google.gson.JsonElement;
-import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
@@ -26,14 +22,7 @@ public class WordCacheView {
         String responseWord = cachedWord.getWord();
 
         String ipa = "";
-        JsonElement pronunciationElement = cachedWord.getPronunciation();
-        String pronunciation = null;
-        if (pronunciationElement != null) {
-            if (pronunciationElement.isJsonPrimitive())
-                pronunciation = pronunciationElement.getAsString();
-            else
-                pronunciation = pronunciationElement.getAsJsonObject().get("all").getAsString();
-        }
+        String pronunciation = cachedWord.getPronunciation();
 
         if (pronunciation != null) {
             ipa = String.format("[%s]", pronunciation);

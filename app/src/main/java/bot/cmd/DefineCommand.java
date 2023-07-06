@@ -1,6 +1,7 @@
 package bot.cmd;
 
 import bot.entity.User;
+import bot.entity.word.CachedWord;
 import bot.entity.word.JournalWord;
 import bot.service.UserService;
 import bot.service.WordCacheService;
@@ -50,16 +51,15 @@ public class DefineCommand extends BotCommand {
     public void execute(SlashCommandInteractionEvent event) {
         String word = event.getOption("word").getAsString();
         WordCacheView wordCacheView = new WordCacheView();
-        EmbedBuilder embedBuilder = wordCacheView.getDefinitionEmbed(
-            wordCacheService.getWordFromCacheOrAPI(word)
-        );
+        Optional<CachedWord> cachedWord = wordCacheService.getWordFromCacheOrAPI(word);
 
-        if (embedBuilder == null) {
+        if (cachedWord.isEmpty()) {
             event.reply("I am not familiar with that word! :pensive:").setEphemeral(true)
                 .queue();
             return;
         }
 
+        EmbedBuilder embedBuilder = wordCacheView.getDefinitionEmbed(cachedWord.get());
         event.replyEmbeds(embedBuilder.build())
             .addActionRow(
                 Button.secondary("save", "Save").withEmoji(Emoji.fromUnicode("💾")))
@@ -79,13 +79,17 @@ public class DefineCommand extends BotCommand {
             Matcher matcher = pattern.matcher(description);
             String word = matcher.find() ? matcher.group(1).trim() : "";
 
+            JournalWord journalWord = JournalWord.builder()
+                .word(word)
+                .timeAdded(System.currentTimeMillis())
+                .repetitions(0)
+                .interval(1)
+                .easiness(2.5f)
+                .quality(-1) // -1 since this word has never been graded before
+                .build();
+
             // If the user was not found
             if (!userService.userExists(discordId)) {
-                JournalWord journalWord = JournalWord.builder()
-                    .word(word)
-                    .timeAdded(System.currentTimeMillis())
-                    .build();
-
                 User user = User.builder()
                     .discordId(event.getUser().getId())
                     .words(Collections.singletonList(journalWord))
@@ -105,11 +109,6 @@ public class DefineCommand extends BotCommand {
                 return;
             }
 
-            JournalWord journalWord = JournalWord.builder()
-                .word(word)
-                .timeAdded(System.currentTimeMillis())
-                .build();
-
             userService.addWord(discordId, journalWord);
 
             event.reply("I saved the word `" + word + "` to your journal! :blue_book:")
@@ -119,3 +118,42 @@ public class DefineCommand extends BotCommand {
     }
 }
 
+/* From https://stackoverflow.com/questions/49047159/spaced-repetition-algorithm-from-supermemo-sm-2/49047160#49047160
+private void calculateSuperMemo2Algorithm(FlashCard card, int quality) {
+
+    if (quality < 0 || quality > 5) {
+        // throw error here or ensure elsewhere that quality is always within 0-5
+    }
+
+    // retrieve the stored values (default values if new cards)
+    int repetitions = card.getRepetitions();
+    float easiness = card.getEasinessFactor();
+    int interval = card.getInterval();
+
+    // easiness factor
+    easiness = (float) Math.max(1.3, easiness + 0.1 - (5.0 - quality) * (0.08 + (5.0 - quality) * 0.02));
+
+    // repetitions
+    if (quality < 3) {
+        repetitions = 0;
+    } else {
+        repetitions += 1;
+    }
+
+    // interval
+    if (repetitions <= 1) {
+        interval = 1;
+    } else if (repetitions == 2) {
+        interval = 6;
+    } else {
+        interval = Math.round(interval * easiness);
+    }
+
+    // next practice
+    int millisecondsInDay = 60 * 60 * 24 * 1000;
+    long now = System.currentTimeMillis();
+    long nextPracticeDate = now + millisecondsInDay*interval;
+
+    // Store the nextPracticeDate in the database
+    // ...
+}*/
