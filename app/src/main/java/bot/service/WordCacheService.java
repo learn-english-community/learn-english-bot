@@ -11,6 +11,7 @@ import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import kong.unirest.json.JSONObject;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -111,7 +112,8 @@ public class WordCacheService {
      * @return The CachedWord
      */
     public Optional<CachedWord> getWordFromAPI(String word) {
-        HttpResponse<String> response = Unirest.get(Constants.WORDS_API_URL + word)
+        String cachedWord = StringEscapeUtils.escapeHtml4(word);
+        HttpResponse<String> response = Unirest.get(Constants.WORDS_API_URL + cachedWord)
             .header("X-RapidAPI-Key", App.getenv("KEY_RAPID_API"))
             .asString();
 
