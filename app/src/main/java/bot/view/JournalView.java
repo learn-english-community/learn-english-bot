@@ -9,7 +9,9 @@ import net.dv8tion.jda.api.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 // TODO (@Christolis): This is disgusting code
 @Getter
@@ -43,6 +45,11 @@ public class JournalView {
             journal.errorMessage("Your journal is empty! Use /define to store words. ⭐️");
             return journal.build();
         }
+
+        // Reverse the current page due to the fact that we want
+        // the most recent words to be to the bottom. Yes, that's
+        // double reversing, but in this case, it's necessary.
+        Collections.reverse(embeds);
 
         journal.words(embeds);
         journal.message("# " + user.getName() + "'s journal (Page " + (page + 1) + "):");
