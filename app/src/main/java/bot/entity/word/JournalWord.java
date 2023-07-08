@@ -17,6 +17,11 @@ public class JournalWord extends Word {
     private long timeAdded;
 
     /**
+     * The index of the definition that the user has saved.
+     */
+    private int definitionIndex;
+
+    /**
      * SuperMemo algorithm value.
      */
     private int repetitions;
@@ -37,7 +42,12 @@ public class JournalWord extends Word {
     private int interval;
 
     /**
+     * A timestamp that indicates the time this word was added.
+     */
+    private long lastPracticed;
+
+    /**
      * SuperMemo algorithm value.
      */
-    private int nextPractice;
+    private long nextPractice;
 }

@@ -10,15 +10,23 @@ import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.internal.entities.emoji.UnicodeEmojiImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,15 +77,57 @@ public class DefineCommand extends BotCommand {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         if (event.getComponentId().equals("save")) {
-            String discordId = event.getUser().getId();
             Optional<MessageEmbed> embedOptional = event.getMessage().getEmbeds()
                 .stream()
                 .findFirst();
             if (embedOptional.isEmpty()) return;
+            MessageEmbed embed = embedOptional.get();
 
-            String description = embedOptional.get().getDescription();
+            String description = embed.getDescription();
             Matcher matcher = pattern.matcher(description);
             String word = matcher.find() ? matcher.group(1).trim() : "";
+            StringSelectMenu.Builder stringSelectMenu = StringSelectMenu.create("choose-definition:" + word);
+            AtomicInteger counter = new AtomicInteger(1);
+
+            embed.getFields().forEach(field -> {
+                String fieldName = field.getName();
+                String fieldValue = field.getValue();
+
+                if (fieldName != null && fieldValue != null) {
+                    String content = fieldValue.split("\\r?\\n")[0]
+                        .substring(2)
+                        .replace("*", "");
+
+                    String value = StringUtils.abbreviate(content, 100);
+                    int emojiUnicode = 0x1f1e6 + fieldName.charAt(0) - ((int) 'a');
+
+                    stringSelectMenu.addOption(
+                        "#" + counter.get(),
+                        String.valueOf(counter.get() - 1),
+                        value,
+                        Emoji.fromUnicode("U+" + Integer.toHexString(emojiUnicode).toUpperCase())
+                    );
+
+                    counter.incrementAndGet();
+                }
+            });
+
+            event.reply("Pick the definition you want to save for the word `" + word + "`:")
+                .setEphemeral(true)
+                .addActionRow(stringSelectMenu.build())
+                .queue();
+
+        }
+    }
+
+    @Override
+    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+        if (event.getComponentId().startsWith("choose-definition")) {
+            String word = event.getComponentId().split(":")[1];
+            String selected = event.getValues().get(0); // the values the user selected
+            int selectedNo = Integer.parseInt(selected);
+            String discordId = event.getUser().getId();
+            String numberDisplay = "**#" + (selectedNo + 1) + "**";
 
             JournalWord journalWord = JournalWord.builder()
                 .word(word)
@@ -85,8 +135,10 @@ public class DefineCommand extends BotCommand {
                 .repetitions(0)
                 .interval(1)
                 .easiness(2.5f)
+                .definitionIndex(selectedNo)
                 .quality(-1) // -1 since this word has never been graded before
                 .build();
+
 
             // If the user was not found
             if (!userService.userExists(discordId)) {
@@ -96,64 +148,38 @@ public class DefineCommand extends BotCommand {
                     .build();
 
                 userService.createUser(user);
+                userService.updateWordSuperMemo(discordId,
+                    journalWord.getWord(),
+                    journalWord.getDefinitionIndex(),
+                    0
+                );
 
-                event.reply("I saved the word `" + word + "` to your journal! :blue_book:")
+                event.reply("I saved the word `" + word + "` to your journal with" +
+                        " the " + numberDisplay + " definition! :blue_book:")
                     .setEphemeral(true)
                     .queue();
+                return;
             }
 
-            if (userService.hasJournalWord(discordId, word)) {
-                event.reply("The word `" + word + "` is already in your journal! :star:")
+            if (userService.hasJournalWord(discordId, word, journalWord.getDefinitionIndex())) {
+                event.reply("The word `" + word + "` is already in your journal with" +
+                        " the " + numberDisplay + " definition! :star:")
                     .setEphemeral(true)
                     .queue();
                 return;
             }
 
             userService.addWord(discordId, journalWord);
+            userService.updateWordSuperMemo(discordId,
+                journalWord.getWord(),
+                journalWord.getDefinitionIndex(),
+                0
+            );
 
-            event.reply("I saved the word `" + word + "` to your journal! :blue_book:")
+            event.reply("I saved the word `" + word + "` to your journal with" +
+                    " the " + numberDisplay + " definition! :blue_book:")
                 .setEphemeral(true)
                 .queue();
         }
     }
 }
-
-/* From https://stackoverflow.com/questions/49047159/spaced-repetition-algorithm-from-supermemo-sm-2/49047160#49047160
-private void calculateSuperMemo2Algorithm(FlashCard card, int quality) {
-
-    if (quality < 0 || quality > 5) {
-        // throw error here or ensure elsewhere that quality is always within 0-5
-    }
-
-    // retrieve the stored values (default values if new cards)
-    int repetitions = card.getRepetitions();
-    float easiness = card.getEasinessFactor();
-    int interval = card.getInterval();
-
-    // easiness factor
-    easiness = (float) Math.max(1.3, easiness + 0.1 - (5.0 - quality) * (0.08 + (5.0 - quality) * 0.02));
-
-    // repetitions
-    if (quality < 3) {
-        repetitions = 0;
-    } else {
-        repetitions += 1;
-    }
-
-    // interval
-    if (repetitions <= 1) {
-        interval = 1;
-    } else if (repetitions == 2) {
-        interval = 6;
-    } else {
-        interval = Math.round(interval * easiness);
-    }
-
-    // next practice
-    int millisecondsInDay = 60 * 60 * 24 * 1000;
-    long now = System.currentTimeMillis();
-    long nextPracticeDate = now + millisecondsInDay*interval;
-
-    // Store the nextPracticeDate in the database
-    // ...
-}*/

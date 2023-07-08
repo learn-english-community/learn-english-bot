@@ -6,10 +6,12 @@ import bot.entity.word.Word;
 import bot.repository.UserRepository;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,16 +56,44 @@ public class UserService {
         return Collections.emptyList();
     }
 
+    public List<JournalWord> getRecentJournalWords(@NonNull String discordId, int page, int count) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            int start = page * count;
+
+            List<JournalWord> words = user.getWords().stream()
+                .sorted((c1, c2) -> Math.toIntExact(c2.getTimeAdded() - c1.getTimeAdded()))
+                .sorted(Comparator.comparingLong(JournalWord::getTimeAdded))
+                .collect(Collectors.toList());
+
+            int totalWords = words.size();
+            int totalPages = (int) Math.ceil((double) totalWords / count);
+
+            if (page > totalPages) {
+                return Collections.emptyList(); // Return an empty list if the page is out of range
+            }
+
+            int end = Math.min(start + count, totalWords);
+            if (start > words.size())
+                return words.stream().limit(count).collect(Collectors.toList());
+
+            return words.subList(start, end);
+        }
+
+        return Collections.emptyList();
+    }
+
     /**
      * @param discordId The Discord ID of the user.
      * @param word The word to get from the list of the words
      * @return The word as a JournalWord
      */
-    public JournalWord getJournalWord(@NonNull String discordId, String word) {
+    public JournalWord getJournalWord(@NonNull String discordId, String word, int index) {
         List<JournalWord> words = getJournalWords(discordId);
 
         for (JournalWord journalWord : words) {
-            if (journalWord.getWord().equalsIgnoreCase(word))
+            if (journalWord.getWord().equalsIgnoreCase(word) && journalWord.getDefinitionIndex() == index)
                 return journalWord;
         }
         return null;
@@ -87,12 +117,59 @@ public class UserService {
      * @param word The word as a string
      * @return True if the journal word exists, false if otherwise
      */
-    public boolean hasJournalWord(@NonNull String discordId, String word) {
+    public boolean hasJournalWord(@NonNull String discordId, String word, int definitionIndex) {
         List<JournalWord> words = getJournalWords(discordId);
 
         return words.stream()
+            .filter(w -> w.getDefinitionIndex() == definitionIndex)
             .map(Word::getWord)
             .collect(Collectors.toList())
             .contains(word);
+    }
+    /**
+     * Updates a journal word's data using the SuperMemo algorithm.
+     *
+     * @param discordId The user whose word needs updating
+     * @param wordString The word to update
+     * @param index The word index to help with indexing
+     * @param quality The quality inputted by the user
+     */
+    public void updateWordSuperMemo(String discordId, String wordString, int index, int quality) {
+        User user = userRepository.findUserByDiscordId(discordId);
+        Optional<JournalWord> optionalWord = user.getWords().stream()
+            .filter(w -> w.getDefinitionIndex() == index && w.getWord().equalsIgnoreCase(wordString))
+            .findFirst();
+
+        if (quality < 0 || quality > 5) return;
+        if (wordString == null || optionalWord.isEmpty()) return;
+
+        JournalWord word = optionalWord.get();
+        int repetitions = word.getRepetitions();
+        float easiness = word.getEasiness();
+        int interval = word.getInterval();
+
+        easiness = (float) Math.max(1.3, easiness + 0.1 - (5.0 - quality) * (0.08 + (5.0 - quality) * 0.02));
+
+        if (quality < 3) {
+            repetitions = 0;
+        } else {
+            repetitions += 1;
+        }
+
+        if (repetitions <= 1) {
+            interval = 1;
+        } else if (repetitions == 2) {
+            interval = 6;
+        } else {
+            interval = Math.round(interval * easiness);
+        }
+
+        int millisecondsInDay = 60 * 60 * 24 * 1000;
+        long now = System.currentTimeMillis();
+        long nextPracticeDate = now + (long) millisecondsInDay * interval;
+
+        word.setNextPractice(nextPracticeDate);
+        word.setLastPracticed(now);
+        userRepository.save(user);
     }
 }
