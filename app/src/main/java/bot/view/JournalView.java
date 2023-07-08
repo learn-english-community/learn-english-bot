@@ -11,9 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-// TODO (@Christolis): This is disgusting code
 @Getter
 @Component
 public class JournalView {
