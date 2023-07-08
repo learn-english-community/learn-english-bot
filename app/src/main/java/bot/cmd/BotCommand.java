@@ -187,10 +187,8 @@ public abstract class BotCommand extends ListenerAdapter {
         }
 
         /**
-         * TODO: This is redundant since the options list
-         *  can be accessed without this method.
-         * <p>
          * Adds a list of options to the command argument.
+         *
          * @return This instance.
          */
         public CommandArgument addOptions(List<String> options) {
@@ -199,10 +197,8 @@ public abstract class BotCommand extends ListenerAdapter {
         }
 
         /**
-         * TODO: This is redundant since the options list
-         *  can be accessed without this method.
-         * <p>
          * Adds an option to the command argument.
+         *
          * @return This instance.
          */
         public CommandArgument addOption(String option) {

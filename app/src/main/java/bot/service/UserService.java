@@ -6,9 +6,6 @@ import bot.entity.word.Word;
 import bot.repository.UserRepository;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -56,6 +53,14 @@ public class UserService {
         return Collections.emptyList();
     }
 
+    /**
+     * Gets the most recent journal words of a user.
+     *
+     * @param discordId The Discord ID of a user
+     * @param page The page to find.
+     * @param count The amount of items to include in the result
+     * @return The list of journal words
+     */
     public List<JournalWord> getRecentJournalWords(@NonNull String discordId, int page, int count) {
         User user = userRepository.findUserByDiscordId(discordId);
 
@@ -63,8 +68,7 @@ public class UserService {
             int start = page * count;
 
             List<JournalWord> words = user.getWords().stream()
-                .sorted((c1, c2) -> Math.toIntExact(c2.getTimeAdded() - c1.getTimeAdded()))
-                .sorted(Comparator.comparingLong(JournalWord::getTimeAdded))
+                .sorted(Comparator.comparingLong(JournalWord::getTimeAdded).reversed())
                 .collect(Collectors.toList());
 
             int totalWords = words.size();

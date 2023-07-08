@@ -36,13 +36,13 @@ public class JournalPaginator extends Paginator<List<MessageEmbed>> {
      * @return A list of embeds, containing words
      */
     @Override
-    public List<MessageEmbed> getPage(User user, int page) {
+    public List<MessageEmbed> getPage(User user, int page, int count) {
         List<MessageEmbed> embeds = new ArrayList<>();
         List<JournalWord> words;
         PrettyTime t = new PrettyTime();
 
         if (userService.userExists(user.getId())) {
-            words = userService.getRecentJournalWords(user.getId(), page, 5);
+            words = userService.getRecentJournalWords(user.getId(), page, count);
         }
         else
             words = Collections.emptyList();
