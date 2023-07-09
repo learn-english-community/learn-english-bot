@@ -49,6 +49,9 @@ public class JournalDisplay {
             nextBtn = nextBtn.asDisabled();
         }
 
-        return new ArrayList<>(List.of(firstBtn, prevBtn, nextBtn, lastBtn));
+        Button exerciseBtn = Button.primary(PREFIX + "exercise", Emoji.fromUnicode("💪"))
+            .withLabel("Practice");
+
+        return new ArrayList<>(List.of(exerciseBtn, firstBtn, prevBtn, nextBtn, lastBtn));
     }
 }
