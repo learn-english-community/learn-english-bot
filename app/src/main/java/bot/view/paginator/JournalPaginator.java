@@ -105,14 +105,13 @@ public class JournalPaginator extends Paginator<List<MessageEmbed>> {
      */
     private int calculateQuality(JournalWord word) {
         long now = System.currentTimeMillis();
-        int quality = word.getQuality();
 
         if (now >= word.getNextPractice()) {
-            return Constants.MAX_JOURNAL_WORD_QUALITY;
+            return 1;
         }
 
-        long div = now / word.getNextPractice();
-        int n = (int) Math.floor(Constants.MAX_JOURNAL_WORD_QUALITY - (div * 3));
+        float div = now / (float) word.getNextPractice();
+        int n = Constants.MAX_JOURNAL_WORD_QUALITY - (int) Math.floor(div * 3);
 
         return Math.max(1, n);
     }
