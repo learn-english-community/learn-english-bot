@@ -38,6 +38,8 @@ public class JournalView {
         List<MessageEmbed> embeds = paginator.getPage(user, page, count);
         JournalDisplay.JournalDisplayBuilder journal = JournalDisplay.builder();
         int wordsCount = userService.getJournalWords(user.getId()).size();
+        int maxPages = (int) Math.ceil(wordsCount / (float) count);
+        String pageString = (page + 1) + "/" + maxPages;
 
         if (embeds.isEmpty()) {
             journal.errorMessage("Your journal is empty! Use /define to store words. ⭐️");
@@ -50,9 +52,9 @@ public class JournalView {
         Collections.reverse(embeds);
 
         journal.words(embeds);
-        journal.message("# " + user.getName() + "'s journal (Page " + (page + 1) + "):");
+        journal.message("# " + user.getName() + "'s journal (Page " + pageString + "):");
         journal.page(page);
-        journal.maxPages((int) Math.ceil(wordsCount / (float) count));
+        journal.maxPages(maxPages);
 
         return journal.build();
     }
