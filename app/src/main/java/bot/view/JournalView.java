@@ -32,7 +32,6 @@ public class JournalView {
      * @param page The page to render
      * @param count The amount of words to include in the journal display
      * @return An instance of the journal display
-     * T
      */
     public JournalDisplay getUserJournalDisplay(User user, int page, int count) {
         List<MessageEmbed> embeds = paginator.getPage(user, page, count);
