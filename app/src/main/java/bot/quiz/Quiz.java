@@ -1,13 +1,9 @@
 package bot.quiz;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -27,9 +23,9 @@ public abstract class Quiz<T> {
 
     public Quiz() {}
 
-    public abstract void showQuestion(int number, InteractionHook hook, List<Button> buttons);
+    public abstract void showQuestion(int number);
 
-    public abstract void showAnswer(int number, InteractionHook hook, List<Button> buttons);
+    public abstract void showAnswer(int number);
 
     public abstract void start();
 }

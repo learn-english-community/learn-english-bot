@@ -32,6 +32,10 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public User getUser(@NonNull String discordId) {
+        return userRepository.findUserByDiscordId(discordId);
+    }
+
     /**
      * @param discordId The Discord ID of the user.
      * @return True if the user exists, false if not
