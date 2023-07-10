@@ -41,6 +41,14 @@ public class WordCacheService {
         return wordCacheRepository.getCachedWordByWord(word);
     }
 
+    public Optional<CachedWord.Definition> getDefinitionByIndex(String wordString,
+                                                      int index) {
+        Optional<CachedWord> word = getWordFromCacheOrAPI(wordString);
+        return word.flatMap(cachedWord -> cachedWord.getResults().stream()
+            .filter(r -> r.getIndex() == index)
+            .findFirst());
+    }
+
     public Optional<CachedWord> getWordFromCacheOrAPI(String wordString) {
         CachedWord cachedWord = findWord(wordString);
 

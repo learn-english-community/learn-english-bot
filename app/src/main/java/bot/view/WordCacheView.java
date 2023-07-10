@@ -31,7 +31,7 @@ public class WordCacheView {
         // Constant data
         embed.setTitle("Learn English™ Dictionary");
         embed.setFooter("• Data provided by WordsAPI");
-        embed.setColor(39129);
+        embed.setColor(Constants.EMBED_COLOR);
         embed.setDescription(pronunciation != null ?
             responseWord + " – " + ipa : responseWord
         );

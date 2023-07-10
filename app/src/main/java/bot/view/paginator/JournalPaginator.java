@@ -71,7 +71,7 @@ public class JournalPaginator extends Paginator<List<MessageEmbed>> {
 
                 embed.addField("Part of speech", definition.getPartOfSpeech(), false);
                 embed.addField("Definition", definition.getDefinition(), false);
-                embed.addField("Quality", renderQuality(calculateQuality(word)), false);
+                embed.addField("Quality", renderQuality(word.calculateQuality()), false);
                 embed.addField("Stored time", storedTime, true);
                 embed.addField("Times practiced", String.valueOf(word.getRepetitions()), true);
                 embed.addField("Next practice", nextPracticeTime, true);
@@ -81,39 +81,6 @@ public class JournalPaginator extends Paginator<List<MessageEmbed>> {
         });
 
         return embeds;
-    }
-
-    /**
-     * Calculates a user-friendly quality indicator.
-     * <p>
-     * The idea of this quality indicator is that it gets the last
-     * chosen quality that the user picked, and as the next practice
-     * timestamp gets closer or surpassed, the quality yields quality
-     * values closer to 1. The maximum quality value is 4. The quality
-     * is one if it has surpassed it or has touched the timestamp.
-     * <p>
-     * For instance, if the word has been checked very recently,
-     * the quality should be 4, as the time difference between the time
-     * practiced and the time moments later would be minimal. But with the
-     * passage of time, it should lower down to a quality of 1 as we get closer
-     * to the next practice time. It should be exactly 1 if we have surpassed,
-     * or we are in the timestamp that indicated that the word should be
-     * practiced.
-     *
-     * @param word The word to test
-     * @return The quality of this word
-     */
-    private int calculateQuality(JournalWord word) {
-        long now = System.currentTimeMillis();
-
-        if (now >= word.getNextPractice()) {
-            return 1;
-        }
-
-        float div = now / (float) word.getNextPractice();
-        int n = Constants.MAX_JOURNAL_WORD_QUALITY - (int) Math.floor(div * 3);
-
-        return Math.max(1, n);
     }
 
     private String renderQuality(int quality) {

@@ -1,5 +1,6 @@
 package bot.entity.word;
 
+import bot.Constants;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -50,4 +51,36 @@ public class JournalWord extends Word {
      * SuperMemo algorithm value.
      */
     private long nextPractice;
+
+    /**
+     * Calculates a user-friendly quality indicator.
+     * <p>
+     * The idea of this quality indicator is that it gets the last
+     * chosen quality that the user picked, and as the next practice
+     * timestamp gets closer or surpassed, the quality yields quality
+     * values closer to 1. The maximum quality value is 4. The quality
+     * is one if it has surpassed it or has touched the timestamp.
+     * <p>
+     * For instance, if the word has been checked very recently,
+     * the quality should be 4, as the time difference between the time
+     * practiced and the time moments later would be minimal. But with the
+     * passage of time, it should lower down to a quality of 1 as we get closer
+     * to the next practice time. It should be exactly 1 if we have surpassed,
+     * or we are in the timestamp that indicated that the word should be
+     * practiced.
+     *
+     * @return The quality of this word
+     */
+    public int calculateQuality() {
+        long now = System.currentTimeMillis();
+
+        if (now >= this.getNextPractice()) {
+            return 1;
+        }
+
+        float div = now / (float) this.getNextPractice();
+        int n = Constants.MAX_JOURNAL_WORD_QUALITY - (int) Math.floor(div * 3);
+
+        return Math.max(1, n);
+    }
 }

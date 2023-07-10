@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Builder
 public class JournalDisplay {
-    private static final String PREFIX = "journal-";
+    public static final String PREFIX = "journal-";
     private List<MessageEmbed> words;
     private String message;
     private String errorMessage;
