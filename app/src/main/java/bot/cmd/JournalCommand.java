@@ -70,18 +70,16 @@ public class JournalCommand extends BotCommand {
             FlashcardQuizFilter filter = FlashcardQuizFilter.getByLabel(type);
             Supplier<Modal> modalSupplier = filter.getMetadataModal();
 
-            event.deferEdit().queue();
-
             if (modalSupplier != null)
                 event.replyModal(modalSupplier.get()).queue();
             else {
+                event.deferEdit().queue();
                 event.getHook().deleteOriginal().queue();
                 FlashcardQuiz quiz = quizFactory.getFlashcardQuiz(
                     user, event.getChannel().asPrivateChannel(),
                     filter, null);
                 quiz.start();
             }
-            //quizFactory.getFlashcardQuiz(user, filter, )
         }
     }
 
