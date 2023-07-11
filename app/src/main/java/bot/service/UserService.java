@@ -179,6 +179,7 @@ public class UserService {
 
         word.setNextPractice(nextPracticeDate);
         word.setLastPracticed(now);
+        word.setRepetitions(word.getRepetitions() + 1);
 
         userRepository.save(user);
     }
