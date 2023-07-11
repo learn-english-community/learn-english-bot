@@ -6,10 +6,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * Represents the "topic" command.
- * <p>
- * It is used to simply send a message to the channel that this
- * command was executed in and lets the user know what the topic
- * of the day is.
+ *
+ * <p>It is used to simply send a message to the channel that this command was executed in and lets
+ * the user know what the topic of the day is.
  */
 @Component
 public class TOTDCommand extends BotCommand {

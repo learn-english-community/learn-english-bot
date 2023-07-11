@@ -6,6 +6,11 @@ import com.deepl.api.Translator;
 import com.mongodb.BasicDBObject;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.sauronsoftware.cron4j.Scheduler;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -67,11 +72,13 @@ public class App implements ApplicationRunner {
         }
 
         // Schedule daily translation reset task.
-        scheduler.schedule(Constants.CRON_DAILY_MORNING, () -> {
-            // Clear all translation usages.
-            TranslateCommand.getUsages().clear();
-            App.log.log(Level.INFO, "Cleaned member daily translation usage!");
-        });
+        scheduler.schedule(
+                Constants.CRON_DAILY_MORNING,
+                () -> {
+                    // Clear all translation usages.
+                    TranslateCommand.getUsages().clear();
+                    logger.log(Level.INFO, "Cleaned member daily translation usage!");
+                });
 
         scheduler.start();
 
@@ -82,7 +89,7 @@ public class App implements ApplicationRunner {
             if (envVar != null) {
                 isProdBuild = Integer.parseInt(envVar);
             } else {
-               isProdBuild = 0;
+                isProdBuild = 0;
             }
 
             String botToken = isProdBuild == 1 ? "BOT_TOKEN_PROD" : "BOT_TOKEN_DEV";
@@ -99,27 +106,36 @@ public class App implements ApplicationRunner {
 
             Optional<Guild> guildOptional = jda.getGuilds().stream().findFirst();
             if (guildOptional.isEmpty()) {
-                log.error("Unable to find a guild! You need to invite the bot to one" +
-                    "before executing this program. Attempting to exit...");
+                logger.error(
+                        "Unable to find a guild! You need to invite the bot to one"
+                                + "before executing this program. Attempting to exit...");
                 System.exit(1);
             }
             Guild guild = guildOptional.get();
 
             // Register slash commands
-            Function<BotCommand, CommandData> commandConsumer = (command) -> {
-                SlashCommandData scd = Commands.slash(command.getName(), command.getDescription());
+            Collection<CommandData> data =
+                    commands.stream()
+                            .map(
+                                    command -> {
+                                        SlashCommandData scd =
+                                                Commands.slash(
+                                                        command.getName(),
+                                                        command.getDescription());
 
-                command.getArguments().forEach((name, arg) -> scd.addOption(
-                    arg.getType(), name, arg.getDescription(),
-                    arg.isRequired(), arg.shouldAutocomplete()
-                ));
-                return scd;
-            };
-            log.info("Attempting to register " + commands.size() + " commands...");
-            Collection<CommandData> localData = commands.stream()
-                .filter(cmd -> !cmd.isGlobal())
-                .map(commandConsumer)
-                .collect(Collectors.toList());
+                                        command.getArguments()
+                                                .forEach(
+                                                        (name, arg) ->
+                                                                scd.addOption(
+                                                                        arg.getType(),
+                                                                        name,
+                                                                        arg.getDescription(),
+                                                                        arg.isRequired(),
+                                                                        arg.shouldAutocomplete()));
+                                        return scd;
+                                    })
+                            .collect(Collectors.toList());
+            guild.updateCommands().addCommands(data).queue();
 
             Collection<CommandData> globalData = commands.stream()
                 .filter(BotCommand::isGlobal)
@@ -131,10 +147,13 @@ public class App implements ApplicationRunner {
 
             // TOTD and WOTD stuff
             TOTDHandler.getTotd().createFallbackTopic();
-            scheduler.schedule(Constants.CRON_DAILY_MIDDLE, () -> {
-                TOTDHandler.getTotd().executeCron(guild);
-                wotdHandler.executeCron(guild);
-            });
+            scheduler.schedule(
+                    Constants.CRON_DAILY_MIDDLE,
+                    () -> {
+                        TOTDHandler.getTotd().executeCron(guild);
+                        WOTDHandler.getWotd().executeCron(guild);
+                    });
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -159,11 +178,11 @@ public class App implements ApplicationRunner {
         // Prioritize .env first
         String value = null;
 
-        if (dotenv != null)
-            value = dotenv.get(key);
+        if (dotenv != null) value = dotenv.get(key);
 
         return value != null ? value : System.getenv(key);
     }
+
     public static void main(String[] args) {
         SpringApplication.run(App.class, args).close();
     }

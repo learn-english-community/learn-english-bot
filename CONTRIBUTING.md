@@ -34,7 +34,7 @@ To submit a pull request, follow these steps:
 
 1. **Fork the Repository**: Start by forking the project repository to your GitHub account. This creates a copy of the repository that you can freely make changes to.
 2. **Create a New Branch**: Create a new branch in your forked repository. Give it a descriptive name that reflects the purpose of your changes.
-3. **Make the Changes**: Make the necessary changes and additions to the codebase in your branch. Ensure that your changes follow the project's coding style and conventions.
+3. **Make the Changes**: Make the necessary changes and additions to the codebase in your branch. Ensure that your changes follow the project's coding style and conventions. Make sure that you use `./gradlew spotlessApply` to help you with that!
 4. **Commit and Push**: Commit your changes with clear, conventional and concise commit messages. Then, push your branch to your forked repository.
 5. **Submit the Pull Request**: Go to the original project repository and locate the "Pull Requests" tab. Click on the "New Pull Request" button, and select your branch as the compare branch. Provide a descriptive title and a detailed description of your changes, making use of the provided template.
 6. **Review and Address Feedback**: Your pull request will go through a review process. Be responsive to feedback and address any requested changes or comments promptly.

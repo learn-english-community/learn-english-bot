@@ -48,13 +48,17 @@ public class DefineCommand extends BotCommand {
     public DefineCommand() {
         super("define", "Get a word definition!", true);
 
-        getArguments().put("word", new CommandArgument(
-            OptionType.STRING,
-            "word",
-            "The word you want to get the definition of!",
-            true, false
-        ));
+        getArguments()
+                .put(
+                        "word",
+                        new CommandArgument(
+                                OptionType.STRING,
+                                "word",
+                                "The word you want to get the definition of!",
+                                true,
+                                false));
     }
+
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         String word = event.getOption("word").getAsString();

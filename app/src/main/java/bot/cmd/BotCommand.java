@@ -4,21 +4,18 @@ import bot.Constants;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-/**
- * Represents an abstract slash command used by the bot.
- */
+/** Represents an abstract slash command used by the bot. */
 public abstract class BotCommand extends ListenerAdapter {
 
     /** The name of the command. */
@@ -62,15 +59,14 @@ public abstract class BotCommand extends ListenerAdapter {
 
     /**
      * Handles the command execution.
-     * <p>
-     * This method should get automatically called whenever a
-     * slash command event is received by the JDA client.
+     *
+     * <p>This method should get automatically called whenever a slash command event is received by
+     * the JDA client.
      */
     public abstract void execute(SlashCommandInteractionEvent event);
 
     /**
-     * Gets called every time a user executes a slash command
-     * registered by the bot.
+     * Gets called every time a user executes a slash command registered by the bot.
      *
      * @param event An instance of the event.
      */
@@ -81,8 +77,8 @@ public abstract class BotCommand extends ListenerAdapter {
     }
 
     /**
-     * Gets called every time a user has an auto-completion prompt open
-     * on their Discord client and are currently using it.
+     * Gets called every time a user has an auto-completion prompt open on their Discord client and
+     * are currently using it.
      *
      * @param event An instance of the event.
      */
@@ -91,57 +87,49 @@ public abstract class BotCommand extends ListenerAdapter {
         if (!event.getName().equals(this.getName())) return;
 
         CommandArgument cmdArg = this.getArguments().get(event.getFocusedOption().getName());
-        List<Command.Choice> options = cmdArg.getOptions().stream()
-                .filter(word -> {
-                    return word.toLowerCase().startsWith(event.getFocusedOption().getValue().toLowerCase());
-                })
-                .limit(25)
-                .map(word -> new Command.Choice(word, word))
-                .collect((Collectors.toList()));
+        List<Command.Choice> options =
+                cmdArg.getOptions().stream()
+                        .filter(
+                                word -> {
+                                    return word.toLowerCase()
+                                            .startsWith(
+                                                    event.getFocusedOption()
+                                                            .getValue()
+                                                            .toLowerCase());
+                                })
+                        .limit(25)
+                        .map(word -> new Command.Choice(word, word))
+                        .collect((Collectors.toList()));
 
         event.replyChoices(options).queue();
     }
 
-    /**
-     * Represents a Discord command argument.
-     */
+    /** Represents a Discord command argument. */
     public static class CommandArgument {
-        /**
-         * The data type that the command argument accepts.
-         */
+        /** The data type that the command argument accepts. */
         private final OptionType type;
 
-        /**
-         * The name of the command argument.
-         */
+        /** The name of the command argument. */
         private final String name;
 
-        /**
-         * A friendly description of the command argument.
-         */
+        /** A friendly description of the command argument. */
         private final String description;
 
-        /**
-         * Whether this command argument is required for the
-         * command's execution.
-         */
+        /** Whether this command argument is required for the command's execution. */
         private final boolean required;
 
-        /**
-         * Whether this command argument should support
-         * autocomplete functionality.
-         */
+        /** Whether this command argument should support autocomplete functionality. */
         private final boolean autoComplete;
 
-        /**
-         * In case of autocomplete support, a list of options
-         * for the user to pick.
-         */
+        /** In case of autocomplete support, a list of options for the user to pick. */
         private final List<String> options = new ArrayList<>();
 
         public CommandArgument(
-            OptionType type, String name, String description,
-            boolean required, boolean autoComplete) {
+                OptionType type,
+                String name,
+                String description,
+                boolean required,
+                boolean autoComplete) {
             this.type = type;
             this.name = name;
             this.description = description;
@@ -171,16 +159,14 @@ public abstract class BotCommand extends ListenerAdapter {
         }
 
         /**
-         * @return Whether this command argument is required
-         * for overall command's execution.
+         * @return Whether this command argument is required for overall command's execution.
          */
         public boolean isRequired() {
             return required;
         }
 
         /**
-         * @return Whether this command argument is supposed to
-         * have autocomplete capabilities.
+         * @return Whether this command argument is supposed to have autocomplete capabilities.
          */
         public boolean shouldAutocomplete() {
             return autoComplete;

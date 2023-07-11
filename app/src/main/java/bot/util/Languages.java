@@ -1,22 +1,20 @@
 package bot.util;
 
 import com.deepl.api.Language;
-
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
 /**
- * A languages utility that primarily assists with
- * converting between country flags and language codes.
+ * A languages utility that primarily assists with converting between country flags and language
+ * codes.
  */
 public class Languages {
 
     /**
-     * Represents a list of all the languages currently
-     * supported by the DeepL API.
-     * <p>
-     * It gets populated whenever the bot gets executed.
+     * Represents a list of all the languages currently supported by the DeepL API.
+     *
+     * <p>It gets populated whenever the bot gets executed.
      */
     public static List<Language> languages = new ArrayList<>();
 
@@ -28,9 +26,10 @@ public class Languages {
      */
     public static String getCodeFromDisplay(String language) {
         return languages.stream()
-            .filter(l -> l.getName().equalsIgnoreCase(language))
-            .map(Language::getCode)
-            .findFirst().orElse("en");
+                .filter(l -> l.getName().equalsIgnoreCase(language))
+                .map(Language::getCode)
+                .findFirst()
+                .orElse("en");
     }
 
     /**

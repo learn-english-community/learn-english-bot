@@ -1,10 +1,6 @@
 package bot.entity.word;
 
 import com.google.gson.annotations.SerializedName;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.List;
 
 @Document("cache_words")
