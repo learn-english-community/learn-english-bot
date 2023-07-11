@@ -126,13 +126,7 @@ public class JournalCommand extends BotCommand {
 
         // A "Reveal" button was clicked during a quiz.
         if (id.contains("flashcard-reveal")) {
-            System.out.println("bob");
-            FlashcardQuiz.getInstance(user.getId())
-                    .ifPresent(
-                            q -> {
-                                System.out.println("asd");
-                                q.showAnswer();
-                            });
+            FlashcardQuiz.getInstance(user.getId()).ifPresent(FlashcardQuiz::showAnswer);
             return;
         }
 

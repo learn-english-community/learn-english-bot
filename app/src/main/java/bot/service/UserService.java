@@ -146,10 +146,7 @@ public class UserService {
         User user = userRepository.findUserByDiscordId(discordId);
         Optional<JournalWord> optionalWord =
                 user.getWords().stream()
-                        .filter(
-                                w ->
-                                        w.getDefinitionIndex() == index
-                                                && w.getWord().equalsIgnoreCase(wordString))
+                        .filter(w -> getWordWithIndexFilter(w, index, wordString))
                         .findFirst();
 
         if (quality < 0 || quality > 5) return;
@@ -160,11 +157,7 @@ public class UserService {
         float easiness = word.getEasiness();
         int interval = word.getInterval();
 
-        easiness =
-                (float)
-                        Math.max(
-                                1.3,
-                                easiness + 0.1 - (5.0 - quality) * (0.08 + (5.0 - quality) * 0.02));
+        easiness = calculateEasiness(easiness, quality);
 
         if (quality < 3) {
             repetitions = 0;
@@ -186,6 +179,16 @@ public class UserService {
 
         word.setNextPractice(nextPracticeDate);
         word.setLastPracticed(now);
+
         userRepository.save(user);
+    }
+
+    private float calculateEasiness(float easiness, int quality) {
+        return (float)
+                Math.max(1.3, easiness + 0.1 - (5.0 - quality) * (0.08 + (5.0 - quality) * 0.02));
+    }
+
+    private boolean getWordWithIndexFilter(JournalWord word, int index, String wordString) {
+        return word.getDefinitionIndex() == index && word.getWord().equalsIgnoreCase(wordString);
     }
 }
