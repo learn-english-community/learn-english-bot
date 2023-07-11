@@ -13,6 +13,10 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
+startScripts {
+    dependsOn bootJar
+}
+
 repositories {
     mavenCentral()
 }
