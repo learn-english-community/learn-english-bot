@@ -81,8 +81,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
                                             .queueAfter(10L, TimeUnit.SECONDS);
                                 });
                 finish(false);
-            } else
-                finish(true);
+            } else finish(true);
 
             return;
         }
@@ -125,11 +124,11 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
             embed.setImage("https://media.tenor.com/MDTYbqilAxgAAAAC/ogvhs-high-five.gif");
 
             channel.sendMessageEmbeds(embed.build())
-                .queue(
-                    success -> {
-                        channel.deleteMessageById(success.getId())
-                            .queueAfter(10L, TimeUnit.SECONDS);
-                    });
+                    .queue(
+                            success -> {
+                                channel.deleteMessageById(success.getId())
+                                        .queueAfter(10L, TimeUnit.SECONDS);
+                            });
         }
 
         removeLastMessage();

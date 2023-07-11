@@ -10,11 +10,7 @@ import bot.service.UserService;
 import bot.view.JournalView;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
