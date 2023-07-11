@@ -1,9 +1,13 @@
 package bot.quiz;
 
+import bot.Constants;
 import bot.quiz.question.FlashcardQuestion;
 import bot.quiz.question.Question;
 import bot.service.UserService;
+
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
@@ -68,6 +72,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
             if (getCurrentQuestionId() == 1) {
                 embed.setTitle("No words");
                 embed.setDescription("There are no words for you to practice using this filter!");
+                embed.setColor(Color.red);
 
                 channel.sendMessageEmbeds(embed.build()).queue(success -> {
                     channel.deleteMessageById(success.getId()).queueAfter(10L, TimeUnit.SECONDS);
@@ -76,6 +81,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
                 // We reached the end of questions.
                 embed.setTitle("End of exercise");
                 embed.setDescription("You reached the end of your exercise! 💪");
+                embed.setColor(Constants.EMBED_COLOR);
 
                 channel.sendMessageEmbeds(embed.build()).queue(success -> {
                     channel.deleteMessageById(success.getId()).queueAfter(10L, TimeUnit.SECONDS);
