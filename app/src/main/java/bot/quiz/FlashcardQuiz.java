@@ -50,10 +50,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
         FlashcardQuestion question = (FlashcardQuestion) getQuestions().get(number);
 
         for (int i = 1; i <= 5; i++) {
-            int hex = 0x20E3 + i;
-
-            Button button = Button.primary("flashcard-answer-" + i, String.valueOf(i));
-
+            Button button = Button.primary("flashcard-answer:" + i, String.valueOf(i));
             buttons.add(button);
         }
         show(question.getAnswer(), buttons);

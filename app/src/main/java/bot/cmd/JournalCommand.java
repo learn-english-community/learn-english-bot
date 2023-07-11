@@ -132,6 +132,7 @@ public class JournalCommand extends BotCommand {
 
         // A ranking button was clicked during a quiz answer.
         if (id.contains("flashcard-answer")) {
+            int selectedQuality = Integer.parseInt(id.split(":")[1]);
             FlashcardQuiz.getInstance(user.getId())
                     .ifPresent(
                             quiz -> {
@@ -143,7 +144,7 @@ public class JournalCommand extends BotCommand {
                                         user.getId(),
                                         word.getWord(),
                                         word.getDefinitionIndex(),
-                                        word.getQuality());
+                                        selectedQuality);
                                 quiz.showQuestion();
                             });
             return;
