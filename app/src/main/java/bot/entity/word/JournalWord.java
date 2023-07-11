@@ -78,7 +78,7 @@ public class JournalWord extends Word {
             return 1;
         }
 
-        float div = now / (float) this.getNextPractice();
+        float div = (now - this.getLastPracticed()) / (float) this.getNextPractice();
         int n = Constants.MAX_JOURNAL_WORD_QUALITY - (int) Math.floor(div * 3);
 
         return Math.max(1, n);
