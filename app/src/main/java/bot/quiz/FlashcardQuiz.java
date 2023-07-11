@@ -45,8 +45,10 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
         Button revealButton = Button.success("flashcard-reveal", "Reveal");
         FlashcardQuestion question = (FlashcardQuestion) getQuestions().get(number);
 
+        Button cancelButton = Button.danger("flashcard-quit", "Quit");
+
         this.setCurrentQuestion(question);
-        show(question.getQuestion(), List.of(revealButton));
+        show(question.getQuestion(), List.of(revealButton, cancelButton));
     }
 
     @Override
@@ -66,8 +68,8 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
 
         if (getQuestions() == null || getQuestions().get(getCurrentQuestionId()) == null) {
             // We didn't even get started. Let the user know.
-            EmbedBuilder embed = new EmbedBuilder();
             if (getCurrentQuestionId() == 1) {
+                EmbedBuilder embed = new EmbedBuilder();
                 embed.setTitle("No words");
                 embed.setDescription("There are no words for you to practice using this filter!");
                 embed.setColor(Color.red);
@@ -78,23 +80,10 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
                                     channel.deleteMessageById(success.getId())
                                             .queueAfter(10L, TimeUnit.SECONDS);
                                 });
-            } else {
-                // We reached the end of questions.
-                embed.setTitle("End of exercise");
-                embed.setDescription("You reached the end of your exercise! 💪");
-                embed.setColor(Constants.EMBED_COLOR);
-                embed.setImage("https://media.tenor.com/MDTYbqilAxgAAAAC/ogvhs-high-five.gif");
+                finish(false);
+            } else
+                finish(true);
 
-                channel.sendMessageEmbeds(embed.build())
-                        .queue(
-                                success -> {
-                                    channel.deleteMessageById(success.getId())
-                                            .queueAfter(10L, TimeUnit.SECONDS);
-                                });
-            }
-
-            removeLastMessage();
-            quizes.remove(getUser().getId());
             return;
         }
 
@@ -124,6 +113,27 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
     @Override
     public void start() {
         showQuestion();
+    }
+
+    public void finish(boolean announce) {
+        if (announce) {
+            EmbedBuilder embed = new EmbedBuilder();
+
+            embed.setTitle("End of exercise");
+            embed.setDescription("You reached the end of your exercise! 💪");
+            embed.setColor(Constants.EMBED_COLOR);
+            embed.setImage("https://media.tenor.com/MDTYbqilAxgAAAAC/ogvhs-high-five.gif");
+
+            channel.sendMessageEmbeds(embed.build())
+                .queue(
+                    success -> {
+                        channel.deleteMessageById(success.getId())
+                            .queueAfter(10L, TimeUnit.SECONDS);
+                    });
+        }
+
+        removeLastMessage();
+        quizes.remove(getUser().getId());
     }
 
     public static Optional<FlashcardQuiz> getInstance(String discordId) {

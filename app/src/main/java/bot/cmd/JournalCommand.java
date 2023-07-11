@@ -134,6 +134,11 @@ public class JournalCommand extends BotCommand {
             return;
         }
 
+        if (id.contains("flashcard-quit")) {
+            FlashcardQuiz.getInstance(user.getId()).ifPresent(quiz -> quiz.finish(true));
+            return;
+        }
+
         // A ranking button was clicked during a quiz answer.
         if (id.contains("flashcard-answer")) {
             int selectedQuality = Integer.parseInt(id.split(":")[1]);
