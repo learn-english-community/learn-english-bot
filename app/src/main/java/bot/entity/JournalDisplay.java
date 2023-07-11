@@ -49,6 +49,6 @@ public class JournalDisplay {
         Button exerciseBtn =
                 Button.primary(PREFIX + "exercise", Emoji.fromUnicode("💪")).withLabel("Practice");
 
-        return new ArrayList<>(List.of(exerciseBtn, firstBtn, prevBtn, nextBtn, lastBtn));
+        return new ArrayList<>(List.of(firstBtn, prevBtn, nextBtn, lastBtn, exerciseBtn));
     }
 }
