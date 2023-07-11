@@ -66,19 +66,20 @@ public class JournalPaginator extends Paginator<List<MessageEmbed>> {
 
                         String storedTime = t.format(new Date(word.getTimeAdded()));
                         String nextPracticeTime = t.format(new Date(word.getNextPractice()));
+                        String lastPracticeTime = t.format(new Date(word.getLastPracticed()));
                         String squashedDefinition = splitString(definition.getDefinition(), 8);
-
 
                         embed.setTitle(wordString);
                         embed.setColor(39129);
 
                         embed.addField("Part of speech", definition.getPartOfSpeech(), false);
                         embed.addField("Definition", squashedDefinition, false);
-                        embed.addField("Quality", renderQuality(word.calculateQuality()), false);
                         embed.addField("Stored time", storedTime, true);
+                        embed.addField("Last practiced", lastPracticeTime, true);
+                        embed.addField("Next practice", nextPracticeTime, true);
+                        embed.addField("Quality", renderQuality(word.calculateQuality()), true);
                         embed.addField(
                                 "Times practiced", String.valueOf(word.getRepetitions()), true);
-                        embed.addField("Next practice", nextPracticeTime, true);
 
                         embeds.add(embed.build());
                     }
