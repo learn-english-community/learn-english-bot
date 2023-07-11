@@ -26,6 +26,7 @@ public class QuestionFactory {
         EmbedBuilder answerEmbed = new EmbedBuilder();
         answerEmbed.setAuthor("Question #" + id);
         answerEmbed.setTitle("📖 The definition of \"" + word + "\" is:");
+        answerEmbed.setColor(Constants.EMBED_COLOR);
 
         Optional<CachedWord.Definition> definitionOptional =
             wordsService.getDefinitionByIndex(word.getWord(), word.getDefinitionIndex());
