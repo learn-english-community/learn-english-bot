@@ -70,6 +70,8 @@ public class JournalCommand extends BotCommand {
             FlashcardQuizFilter filter = FlashcardQuizFilter.getByLabel(type);
             Supplier<Modal> modalSupplier = filter.getMetadataModal();
 
+            event.deferEdit().queue();
+
             if (modalSupplier != null)
                 event.replyModal(modalSupplier.get()).queue();
             else {
