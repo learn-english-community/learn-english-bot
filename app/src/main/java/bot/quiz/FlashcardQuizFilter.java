@@ -43,7 +43,7 @@ public enum FlashcardQuizFilter {
                 int quality = Integer.parseInt(metadata.getAsString());
 
                 return user.getWords().stream()
-                        .filter(w -> w.getQuality() == quality)
+                        .filter(w -> w.calculateQuality() == quality)
                         .collect(Collectors.toList());
             },
             () -> {
