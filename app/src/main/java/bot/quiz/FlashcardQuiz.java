@@ -83,6 +83,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
                 embed.setTitle("End of exercise");
                 embed.setDescription("You reached the end of your exercise! 💪");
                 embed.setColor(Constants.EMBED_COLOR);
+                embed.setImage("https://media.tenor.com/MDTYbqilAxgAAAAC/ogvhs-high-five.gif");
 
                 channel.sendMessageEmbeds(embed.build())
                         .queue(
