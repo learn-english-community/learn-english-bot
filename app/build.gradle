@@ -8,6 +8,7 @@
 
 plugins {
     id 'application'
+    id "com.diffplug.spotless" version "6.19.0"
 }
 
 repositories {
@@ -28,6 +29,8 @@ dependencies {
     implementation 'com.vdurmont:emoji-java:5.1.1'
     implementation 'it.sauronsoftware.cron4j:cron4j:2.2.5'
     implementation "net.dv8tion:JDA:5.0.0-beta.10"
+
+
 }
 
 application {
@@ -39,5 +42,17 @@ jar {
         attributes(
                 'Main-Class': "$mainClassName"
         )
+    }
+}
+
+spotless {
+    java {
+        importOrder()
+        removeUnusedImports()
+        cleanthat()
+
+        googleJavaFormat().aosp()
+
+        formatAnnotations()
     }
 }
