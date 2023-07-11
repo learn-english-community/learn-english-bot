@@ -4,12 +4,10 @@ import bot.Constants;
 import bot.quiz.question.FlashcardQuestion;
 import bot.quiz.question.Question;
 import bot.service.UserService;
-
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -74,18 +72,24 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
                 embed.setDescription("There are no words for you to practice using this filter!");
                 embed.setColor(Color.red);
 
-                channel.sendMessageEmbeds(embed.build()).queue(success -> {
-                    channel.deleteMessageById(success.getId()).queueAfter(10L, TimeUnit.SECONDS);
-                });
+                channel.sendMessageEmbeds(embed.build())
+                        .queue(
+                                success -> {
+                                    channel.deleteMessageById(success.getId())
+                                            .queueAfter(10L, TimeUnit.SECONDS);
+                                });
             } else {
                 // We reached the end of questions.
                 embed.setTitle("End of exercise");
                 embed.setDescription("You reached the end of your exercise! 💪");
                 embed.setColor(Constants.EMBED_COLOR);
 
-                channel.sendMessageEmbeds(embed.build()).queue(success -> {
-                    channel.deleteMessageById(success.getId()).queueAfter(10L, TimeUnit.SECONDS);
-                });
+                channel.sendMessageEmbeds(embed.build())
+                        .queue(
+                                success -> {
+                                    channel.deleteMessageById(success.getId())
+                                            .queueAfter(10L, TimeUnit.SECONDS);
+                                });
             }
 
             removeLastMessage();
