@@ -77,7 +77,7 @@ public class App implements ApplicationRunner {
                 () -> {
                     // Clear all translation usages.
                     TranslateCommand.getUsages().clear();
-                    logger.log(Level.INFO, "Cleaned member daily translation usage!");
+                    log.log(Level.INFO, "Cleaned member daily translation usage!");
                 });
 
         scheduler.start();
@@ -106,7 +106,7 @@ public class App implements ApplicationRunner {
 
             Optional<Guild> guildOptional = jda.getGuilds().stream().findFirst();
             if (guildOptional.isEmpty()) {
-                logger.error(
+                log.error(
                         "Unable to find a guild! You need to invite the bot to one"
                                 + "before executing this program. Attempting to exit...");
                 System.exit(1);
@@ -114,28 +114,20 @@ public class App implements ApplicationRunner {
             Guild guild = guildOptional.get();
 
             // Register slash commands
-            Collection<CommandData> data =
-                    commands.stream()
-                            .map(
-                                    command -> {
-                                        SlashCommandData scd =
-                                                Commands.slash(
-                                                        command.getName(),
-                                                        command.getDescription());
+            Function<BotCommand, CommandData> commandConsumer = (command) -> {
+                SlashCommandData scd = Commands.slash(command.getName(), command.getDescription());
 
-                                        command.getArguments()
-                                                .forEach(
-                                                        (name, arg) ->
-                                                                scd.addOption(
-                                                                        arg.getType(),
-                                                                        name,
-                                                                        arg.getDescription(),
-                                                                        arg.isRequired(),
-                                                                        arg.shouldAutocomplete()));
-                                        return scd;
-                                    })
-                            .collect(Collectors.toList());
-            guild.updateCommands().addCommands(data).queue();
+                command.getArguments().forEach((name, arg) -> scd.addOption(
+                    arg.getType(), name, arg.getDescription(),
+                    arg.isRequired(), arg.shouldAutocomplete()
+                ));
+                return scd;
+            };
+            log.info("Attempting to register " + commands.size() + " commands...");
+            Collection<CommandData> localData = commands.stream()
+                .filter(cmd -> !cmd.isGlobal())
+                .map(commandConsumer)
+                .collect(Collectors.toList());
 
             Collection<CommandData> globalData = commands.stream()
                 .filter(BotCommand::isGlobal)
@@ -151,7 +143,7 @@ public class App implements ApplicationRunner {
                     Constants.CRON_DAILY_MIDDLE,
                     () -> {
                         TOTDHandler.getTotd().executeCron(guild);
-                        WOTDHandler.getWotd().executeCron(guild);
+                        wotdHandler.executeCron(guild);
                     });
 
         } catch (Exception e) {

@@ -12,7 +12,8 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
+@Component
+@Log4j2
 public class WOTDHandler {
 
     /** Holds an instance of the WOTDHandler. */
