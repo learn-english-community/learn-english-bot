@@ -4,7 +4,10 @@ import bot.quiz.question.FlashcardQuestion;
 import bot.quiz.question.Question;
 import bot.service.UserService;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 import lombok.Getter;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
@@ -58,6 +61,32 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
 
     public void showQuestion() {
         this.setCurrentQuestionId(this.getCurrentQuestionId() + 1);
+
+        if (getQuestions() == null || getQuestions().get(getCurrentQuestionId()) == null) {
+            // We didn't even get started. Let the user know.
+            EmbedBuilder embed = new EmbedBuilder();
+            if (getCurrentQuestionId() == 1) {
+                embed.setTitle("No words");
+                embed.setDescription("There are no words for you to practice using this filter!");
+
+                channel.sendMessageEmbeds(embed.build()).queue(success -> {
+                    channel.deleteMessageById(success.getId()).queueAfter(10L, TimeUnit.SECONDS);
+                });
+            } else {
+                // We reached the end of questions.
+                embed.setTitle("End of exercise");
+                embed.setDescription("You reached the end of your exercise! 💪");
+
+                channel.sendMessageEmbeds(embed.build()).queue(success -> {
+                    channel.deleteMessageById(success.getId()).queueAfter(10L, TimeUnit.SECONDS);
+                });
+            }
+
+            removeLastMessage();
+            quizes.remove(getUser().getId());
+            return;
+        }
+
         showQuestion(this.getCurrentQuestionId());
     }
 
@@ -68,8 +97,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
     private void show(MessageEmbed messageEmbed, List<Button> buttons) {
         if (messageEmbed == null) return;
 
-        if (this.getLastMessageId() != null)
-            channel.deleteMessageById(this.getLastMessageId()).queue();
+        removeLastMessage();
 
         channel.sendMessage("")
                 .setEmbeds(messageEmbed)
@@ -77,10 +105,14 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
                 .queue(message -> lastMessageId = message.getId());
     }
 
+    private void removeLastMessage() {
+        if (this.getLastMessageId() != null)
+            channel.deleteMessageById(this.getLastMessageId()).queue();
+    }
+
     @Override
     public void start() {
-        this.setCurrentQuestionId(1);
-        showQuestion(this.getCurrentQuestionId());
+        showQuestion();
     }
 
     public static Optional<FlashcardQuiz> getInstance(String discordId) {

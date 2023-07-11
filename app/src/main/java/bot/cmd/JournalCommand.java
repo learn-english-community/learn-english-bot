@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
@@ -170,7 +171,7 @@ public class JournalCommand extends BotCommand {
         FlashcardQuizFilter filter = FlashcardQuizFilter.getByLabel(type);
 
         if (filter != null) {
-            event.reply("The quiz has started!").setEphemeral(true).queue();
+            event.deferEdit().queue(hook -> hook.deleteOriginal().queue());
             FlashcardQuiz quiz =
                     quizFactory.getFlashcardQuiz(
                             user, event.getChannel().asPrivateChannel(), filter, value);
