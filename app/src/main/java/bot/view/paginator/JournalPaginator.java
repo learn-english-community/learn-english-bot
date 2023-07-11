@@ -5,6 +5,9 @@ import bot.entity.word.JournalWord;
 import bot.service.UserService;
 import bot.service.WordCacheService;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import lombok.Builder;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -63,12 +66,14 @@ public class JournalPaginator extends Paginator<List<MessageEmbed>> {
 
                         String storedTime = t.format(new Date(word.getTimeAdded()));
                         String nextPracticeTime = t.format(new Date(word.getNextPractice()));
+                        String squashedDefinition = splitString(definition.getDefinition(), 8);
+
 
                         embed.setTitle(wordString);
                         embed.setColor(39129);
 
                         embed.addField("Part of speech", definition.getPartOfSpeech(), false);
-                        embed.addField("Definition", definition.getDefinition(), false);
+                        embed.addField("Definition", squashedDefinition, false);
                         embed.addField("Quality", renderQuality(word.calculateQuality()), false);
                         embed.addField("Stored time", storedTime, true);
                         embed.addField(
@@ -95,5 +100,21 @@ public class JournalPaginator extends Paginator<List<MessageEmbed>> {
             default:
                 return "🚫";
         }
+    }
+
+    public static String splitString(final String string, final int chunkSize) {
+        final String[] words = string.split("\\s+");
+        final int numberOfChunks = (words.length + chunkSize - 1) / chunkSize;
+        StringBuilder builder = new StringBuilder();
+        List<String> chunks = IntStream.range(0, numberOfChunks)
+            .mapToObj(index -> {
+                int start = index * chunkSize;
+                int end = Math.min((index + 1) * chunkSize, words.length);
+                return String.join(" ", Arrays.copyOfRange(words, start, end));
+            })
+            .collect(Collectors.toList());
+
+        chunks.forEach(chunk -> builder.append(chunk).append("\n"));
+        return builder.toString();
     }
 }
