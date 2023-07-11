@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -23,9 +24,12 @@ public abstract class BotCommand extends ListenerAdapter {
     /** A map of all the possible command arguments. */
     private final Map<String, CommandArgument> arguments = new HashMap<>();
 
-    public BotCommand(String name, String description) {
+    @Getter private final boolean isGlobal;
+
+    public BotCommand(String name, String description, boolean isGlobal) {
         this.name = name;
         this.description = description;
+        this.isGlobal = isGlobal;
     }
 
     /**
@@ -165,9 +169,7 @@ public abstract class BotCommand extends ListenerAdapter {
         }
 
         /**
-         * TODO: This is redundant since the options list can be accessed without this method.
-         *
-         * <p>Adds a list of options to the command argument.
+         * Adds a list of options to the command argument.
          *
          * @return This instance.
          */
@@ -177,9 +179,7 @@ public abstract class BotCommand extends ListenerAdapter {
         }
 
         /**
-         * TODO: This is redundant since the options list can be accessed without this method.
-         *
-         * <p>Adds an option to the command argument.
+         * Adds an option to the command argument.
          *
          * @return This instance.
          */

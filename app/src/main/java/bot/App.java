@@ -3,13 +3,16 @@ package bot;
 import bot.cmd.*;
 import bot.listener.ReadyListener;
 import com.deepl.api.Translator;
+import com.mongodb.BasicDBObject;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.sauronsoftware.cron4j.Scheduler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -19,36 +22,44 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-public class App {
+@SpringBootApplication
+@EnableMongoRepositories
+@Log4j2
+public class App implements ApplicationRunner {
 
-    public static final Logger logger = LogManager.getLogger();
     public static final Scheduler scheduler = new Scheduler();
 
     private static Dotenv dotenv;
-    public static Translator translator;
+    private static Translator translator;
 
     public static List<EventListener> listeners = new ArrayList<>();
-    public static List<BotCommand> commands = new ArrayList<>();
+    public static List<BotCommand> commands;
 
+    @Autowired private MongoTemplate mongoTemplate;
+
+    @Autowired private WOTDHandler wotdHandler;
+
+    // Listeners
     static {
-        // Listeners
         listeners.add(new ReadyListener());
-
-        commands.add(new PingVoiceChatCommand());
-        commands.add(new DefineCommand());
-        commands.add(new TOTDCommand());
     }
 
-    public static final List<String> languages = new ArrayList<>();
-
     public void launch() {
+        // Test DB connection
         try {
-            dotenv = Dotenv.configure().directory("..").load();
+            BasicDBObject ping = new BasicDBObject("ping", "1");
+            mongoTemplate.getDb().runCommand(ping);
         } catch (Exception e) {
-            dotenv = null;
+            log.error("Failed to connect to the MongoDB server! Quitting...");
+            System.exit(1);
         }
 
         // Schedule daily translation reset task.
@@ -57,20 +68,10 @@ public class App {
                 () -> {
                     // Clear all translation usages.
                     TranslateCommand.getUsages().clear();
-                    logger.log(Level.INFO, "Cleaned member daily translation usage!");
+                    log.log(Level.INFO, "Cleaned member daily translation usage!");
                 });
 
         scheduler.start();
-        // Add DeepL supported languages and construct translate command.
-        try {
-            // Slash commands
-            App.translator = new Translator(App.getenv("KEY_DEEPL"));
-            TranslateCommand cmd = new TranslateCommand();
-
-            commands.add(cmd);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         try {
             String envVar = App.getenv("PROD_BUILD");
@@ -86,7 +87,7 @@ public class App {
             JDABuilder jdaBuilder = JDABuilder.createDefault(App.getenv(botToken));
 
             jdaBuilder.enableIntents(GatewayIntent.GUILD_VOICE_STATES);
-
+            commands = SpringContext.getBeansOfType(BotCommand.class);
             // Add event listeners
             listeners.forEach(jdaBuilder::addEventListeners);
             commands.forEach(jdaBuilder::addEventListeners);
@@ -96,7 +97,7 @@ public class App {
 
             Optional<Guild> guildOptional = jda.getGuilds().stream().findFirst();
             if (guildOptional.isEmpty()) {
-                logger.error(
+                log.error(
                         "Unable to find a guild! You need to invite the bot to one"
                                 + "before executing this program. Attempting to exit...");
                 System.exit(1);
@@ -104,28 +105,37 @@ public class App {
             Guild guild = guildOptional.get();
 
             // Register slash commands
-            Collection<CommandData> data =
-                    commands.stream()
-                            .map(
-                                    command -> {
-                                        SlashCommandData scd =
-                                                Commands.slash(
-                                                        command.getName(),
-                                                        command.getDescription());
+            Function<BotCommand, CommandData> commandConsumer =
+                    (command) -> {
+                        SlashCommandData scd =
+                                Commands.slash(command.getName(), command.getDescription());
 
-                                        command.getArguments()
-                                                .forEach(
-                                                        (name, arg) ->
-                                                                scd.addOption(
-                                                                        arg.getType(),
-                                                                        name,
-                                                                        arg.getDescription(),
-                                                                        arg.isRequired(),
-                                                                        arg.shouldAutocomplete()));
-                                        return scd;
-                                    })
+                        command.getArguments()
+                                .forEach(
+                                        (name, arg) ->
+                                                scd.addOption(
+                                                        arg.getType(),
+                                                        name,
+                                                        arg.getDescription(),
+                                                        arg.isRequired(),
+                                                        arg.shouldAutocomplete()));
+                        return scd;
+                    };
+            log.info("Attempting to register " + commands.size() + " commands...");
+            Collection<CommandData> localData =
+                    commands.stream()
+                            .filter(cmd -> !cmd.isGlobal())
+                            .map(commandConsumer)
                             .collect(Collectors.toList());
-            guild.updateCommands().addCommands(data).queue();
+
+            Collection<CommandData> globalData =
+                    commands.stream()
+                            .filter(BotCommand::isGlobal)
+                            .map(commandConsumer)
+                            .collect(Collectors.toList());
+
+            guild.updateCommands().addCommands(localData).queue();
+            jda.updateCommands().addCommands(globalData).queue();
 
             // TOTD and WOTD stuff
             TOTDHandler.getTotd().createFallbackTopic();
@@ -133,7 +143,7 @@ public class App {
                     Constants.CRON_DAILY_MIDDLE,
                     () -> {
                         TOTDHandler.getTotd().executeCron(guild);
-                        WOTDHandler.getWotd().executeCron(guild);
+                        wotdHandler.executeCron(guild);
                     });
 
         } catch (Exception e) {
@@ -141,9 +151,21 @@ public class App {
         }
     }
 
-    // TODO (@christolis): There must be a better way
-    // to get environment variables more easily.
+    public static Translator getTranslator() {
+        if (translator == null) translator = new Translator(App.getenv("KEY_DEEPL"));
+
+        return translator;
+    }
+
     public static String getenv(String key) {
+        if (dotenv == null) {
+            try {
+                dotenv = Dotenv.configure().directory("..").load();
+            } catch (Exception e) {
+                dotenv = null;
+            }
+        }
+
         // Prioritize .env first
         String value = null;
 
@@ -153,6 +175,11 @@ public class App {
     }
 
     public static void main(String[] args) {
-        new App().launch();
+        SpringApplication.run(App.class, args).close();
+    }
+
+    @Override
+    public void run(ApplicationArguments args) {
+        launch();
     }
 }

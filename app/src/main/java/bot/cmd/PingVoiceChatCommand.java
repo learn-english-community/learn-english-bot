@@ -5,12 +5,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import org.springframework.stereotype.Component;
 
 /** Represents the "pingvc" slash command. */
+@Log4j2
+@Component
 public class PingVoiceChatCommand extends BotCommand {
 
     /**
@@ -23,7 +27,7 @@ public class PingVoiceChatCommand extends BotCommand {
     private static final Map<String, Integer> usages = new HashMap<>();
 
     public PingVoiceChatCommand() {
-        super("pingvc", "Let other members know that you want to voice chat!");
+        super("pingvc", "Let other members know that you want to voice chat!", false);
     }
 
     @Override
@@ -70,7 +74,7 @@ public class PingVoiceChatCommand extends BotCommand {
                         .getRoleById(App.getenv("ROLE_ID_VOICE_CHAT"));
 
         if (vcRole == null) {
-            App.logger.warn("ROLE_ID_VOICE_CHAT was not found");
+            log.warn("ROLE_ID_VOICE_CHAT was not found");
             return;
         }
 

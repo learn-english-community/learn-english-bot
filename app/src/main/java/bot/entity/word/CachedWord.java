@@ -1,14 +1,18 @@
-package bot.model;
+package bot.entity.word;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-public class WordsAPIResponse {
+@Document("cache_words")
+public class CachedWord extends Word {
+
+    @Getter @Setter private long lastUpdate;
+
     @SerializedName("success")
     private boolean success;
-
-    @SerializedName("word")
-    private String word;
 
     @SerializedName("results")
     private List<Definition> results;
@@ -17,7 +21,9 @@ public class WordsAPIResponse {
     private Syllables syllables;
 
     @SerializedName("pronunciation")
-    private Pronunciation pronunciation;
+    @Getter
+    @Setter
+    private String pronunciation;
 
     @SerializedName("frequency")
     private double frequency;
@@ -28,14 +34,6 @@ public class WordsAPIResponse {
 
     public void setSuccess(boolean success) {
         this.success = success;
-    }
-
-    public String getWord() {
-        return word;
-    }
-
-    public void setWord(String word) {
-        this.word = word;
     }
 
     public List<Definition> getResults() {
@@ -54,14 +52,6 @@ public class WordsAPIResponse {
         this.syllables = syllables;
     }
 
-    public Pronunciation getPronunciation() {
-        return pronunciation;
-    }
-
-    public void setPronunciation(Pronunciation pronunciation) {
-        this.pronunciation = pronunciation;
-    }
-
     public double getFrequency() {
         return frequency;
     }
@@ -71,6 +61,8 @@ public class WordsAPIResponse {
     }
 
     public static class Definition {
+        @Getter @Setter private int index;
+
         @SerializedName("definition")
         private String definition;
 
@@ -219,16 +211,6 @@ public class WordsAPIResponse {
     }
 
     public static class Pronunciation {
-
-        @SerializedName("all")
-        private String all;
-
-        public String getAll() {
-            return all;
-        }
-
-        public void setAll(String all) {
-            this.all = all;
-        }
+        @Getter @Setter private String content;
     }
 }

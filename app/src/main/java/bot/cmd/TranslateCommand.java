@@ -5,16 +5,18 @@ import bot.Constants;
 import bot.util.Languages;
 import com.deepl.api.TextResult;
 import java.util.*;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import org.springframework.stereotype.Component;
 
 /**
  * Represents the "translate" command.
  *
  * <p>It allows users to translate a text into a different language, with the help of the DeepL API.
  */
+@Component
 public class TranslateCommand extends BotCommand {
 
     /**
@@ -27,7 +29,7 @@ public class TranslateCommand extends BotCommand {
     private static final Map<String, Integer> usages = new HashMap<>();
 
     public TranslateCommand() {
-        super("translate", "Translate your text in to a different language!");
+        super("translate", "Translate your text in to a different language!", true);
 
         // Add target argument along with options
         CommandArgument targetArg =
@@ -39,7 +41,7 @@ public class TranslateCommand extends BotCommand {
                         true);
 
         try {
-            Languages.languages = App.translator.getTargetLanguages();
+            Languages.languages = App.getTranslator().getTargetLanguages();
             Languages.languages.forEach(language -> targetArg.addOption(language.getName()));
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,10 +110,9 @@ public class TranslateCommand extends BotCommand {
 
         // Finally, attempt to make the translation.
         try {
-            TextResult result = App.translator.translateText(text, null, targetLang);
-            Member member = Objects.requireNonNull(event.getMember());
-            String displayName =
-                    member.getNickname() != null ? member.getNickname() : event.getUser().getName();
+            TextResult result = App.getTranslator().translateText(text, null, targetLang);
+            User user = event.getUser();
+            String displayName = user.getName();
 
             usages.put(userId, usages.containsKey(userId) ? usages.get(userId) + 1 : 1);
             event.getHook()

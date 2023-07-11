@@ -4,11 +4,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import java.util.Random;
 import kong.unirest.Unirest;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 /** Manages functions that involve the "topic of the day" feature. */
+@Log4j2
 public class TOTDHandler {
     /** An instance of the TOTDHandler. */
     private static TOTDHandler totd;
@@ -53,7 +55,7 @@ public class TOTDHandler {
         Role totdRole = guild.getRoleById(App.getenv("ROLE_ID_TOTD"));
 
         if (totdRole == null) {
-            App.logger.warn("Tried to announce TOTD but role was not found.");
+            log.warn("Tried to announce TOTD but role was not found.");
             return;
         }
         String message = totdRole.getAsMention() + " " + constructTopicMessage();

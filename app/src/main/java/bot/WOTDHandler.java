@@ -1,18 +1,29 @@
 package bot;
 
+import bot.service.WordCacheService;
+import bot.view.WordCacheView;
 import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-/** Manages functions that involve the "word of the day" feature. */
+@Component
+@Log4j2
 public class WOTDHandler {
 
     /** Holds an instance of the WOTDHandler. */
     private static WOTDHandler wotd;
 
-    private WOTDHandler() {}
+    private final WordCacheService wordCacheService;
+
+    @Autowired
+    private WOTDHandler(WordCacheService wordCacheService) {
+        this.wordCacheService = wordCacheService;
+    }
 
     /**
      * Primarily used by the cron scheduler, and it acts as the executing method once triggered.
@@ -41,19 +52,12 @@ public class WOTDHandler {
                         .getRoleById(App.getenv("ROLE_ID_WOTD"));
 
         if (role == null) {
-            App.logger.warn("ROLE_ID_WOTD was not found");
+            log.warn("ROLE_ID_WOTD was not found");
             return;
         }
-        EmbedBuilder embed = Dictionary.getDictionary().getRandomWord();
+        WordCacheView wordCacheView = new WordCacheView();
+        EmbedBuilder embed =
+                wordCacheView.getDefinitionEmbed(wordCacheService.getRandomWordFromAPI());
         textChannel.sendMessage(role.getAsMention()).setEmbeds(embed.build()).queue();
-    }
-
-    /**
-     * @return The only instance of the WOTDHandler
-     */
-    public static WOTDHandler getWotd() {
-        if (wotd == null) wotd = new WOTDHandler();
-
-        return wotd;
     }
 }
