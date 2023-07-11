@@ -1,28 +1,24 @@
 package bot.cmd;
 
 import bot.App;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
-/**
- * Represents the "pingvc" slash command.
- */
+/** Represents the "pingvc" slash command. */
 public class PingVoiceChatCommand extends BotCommand {
 
     /**
      * Keeps track of the number of command usages from different users.
-     * <p>
-     * The key represents a String representation of the user's ID, whereas
-     * the value represents the amount of uses the user has made in a day.
-     * A cron task is scheduled to reset these limits while the bot is
-     * running. This is done to prevent people from spamming the command.
+     *
+     * <p>The key represents a String representation of the user's ID, whereas the value represents
+     * the amount of uses the user has made in a day. A cron task is scheduled to reset these limits
+     * while the bot is running. This is done to prevent people from spamming the command.
      */
     private static final Map<String, Integer> usages = new HashMap<>();
 
@@ -45,38 +41,47 @@ public class PingVoiceChatCommand extends BotCommand {
         // If the user is not in any voice channel.
         if (userVcChannel == null) {
             event.reply("You need to be in a voice channel to execute this command! :loud_sound:")
-                .setEphemeral(true)
-                .queue();
+                    .setEphemeral(true)
+                    .queue();
             return;
         }
 
         // Acquire permission override state and use it to check if the
         // voice channel that the user is in is publicly accessible.
-        Optional<PermissionOverride> permOverride = userVcChannel.asVoiceChannel().getPermissionOverrides().stream()
-            .filter(po -> po.getRole().equals(guild.getPublicRole())).findFirst();
-        boolean isPublic = permOverride.isEmpty() || !permOverride.get().getDenied().contains(Permission.VOICE_CONNECT);
+        Optional<PermissionOverride> permOverride =
+                userVcChannel.asVoiceChannel().getPermissionOverrides().stream()
+                        .filter(po -> po.getRole().equals(guild.getPublicRole()))
+                        .findFirst();
+        boolean isPublic =
+                permOverride.isEmpty()
+                        || !permOverride.get().getDenied().contains(Permission.VOICE_CONNECT);
 
         if (!isPublic) {
-            event.reply("You need to be in a public voice channel to execute this command! :unlock:")
-                .setEphemeral(true)
-                .queue();
+            event.reply(
+                            "You need to be in a public voice channel to execute this command! :unlock:")
+                    .setEphemeral(true)
+                    .queue();
             return;
         }
 
         // A handle of the @Voice Chat role.
-        Role vcRole = Objects.requireNonNull(
-            event.getGuild()).getRoleById(App.getenv("ROLE_ID_VOICE_CHAT")
-        );
+        Role vcRole =
+                Objects.requireNonNull(event.getGuild())
+                        .getRoleById(App.getenv("ROLE_ID_VOICE_CHAT"));
 
         if (vcRole == null) {
             App.logger.warn("ROLE_ID_VOICE_CHAT was not found");
             return;
         }
 
-        event.reply(vcRole.getAsMention() + " Join "
-            + event.getUser().getAsMention() + " for a conversation in "
-            + userVcChannel.getAsMention() + "! :microphone2:")
-            .queue();
+        event.reply(
+                        vcRole.getAsMention()
+                                + " Join "
+                                + event.getUser().getAsMention()
+                                + " for a conversation in "
+                                + userVcChannel.getAsMention()
+                                + "! :microphone2:")
+                .queue();
     }
 
     /**
