@@ -1,13 +1,14 @@
 package bot.entity.word;
 
 import com.google.gson.*;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 public class CachedWordDeserializer implements JsonDeserializer<CachedWord> {
     @Override
-    public CachedWord deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public CachedWord deserialize(
+            JsonElement json, Type typeOfT, JsonDeserializationContext context)
+            throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
         CachedWord word = new CachedWord();
 

@@ -12,9 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-/**
- * Configuration class for the MongoDB connection.
- */
+/** Configuration class for the MongoDB connection. */
 @Configuration
 @EnableMongoRepositories
 @Log4j2
@@ -27,9 +25,8 @@ public class ApplicationConfig extends AbstractMongoClientConfiguration {
 
         try {
             ConnectionString connectionString = new ConnectionString(url + "/" + database);
-            MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(connectionString)
-                .build();
+            MongoClientSettings settings =
+                    MongoClientSettings.builder().applyConnectionString(connectionString).build();
             return MongoClients.create(settings);
         } catch (MongoException e) {
             log.error("Failed to connect to the MongoDB server.");

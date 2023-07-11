@@ -3,14 +3,13 @@ package bot.view;
 import bot.entity.JournalDisplay;
 import bot.service.UserService;
 import bot.view.paginator.JournalPaginator;
+import java.util.Collections;
+import java.util.List;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.List;
 
 @Getter
 @Component

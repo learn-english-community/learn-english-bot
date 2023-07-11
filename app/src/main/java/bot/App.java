@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.JDA;
@@ -26,16 +27,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @SpringBootApplication
 @EnableMongoRepositories
@@ -50,11 +43,9 @@ public class App implements ApplicationRunner {
     public static List<EventListener> listeners = new ArrayList<>();
     public static List<BotCommand> commands;
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+    @Autowired private MongoTemplate mongoTemplate;
 
-    @Autowired
-    private WOTDHandler wotdHandler;
+    @Autowired private WOTDHandler wotdHandler;
 
     // Listeners
     static {
@@ -114,25 +105,34 @@ public class App implements ApplicationRunner {
             Guild guild = guildOptional.get();
 
             // Register slash commands
-            Function<BotCommand, CommandData> commandConsumer = (command) -> {
-                SlashCommandData scd = Commands.slash(command.getName(), command.getDescription());
+            Function<BotCommand, CommandData> commandConsumer =
+                    (command) -> {
+                        SlashCommandData scd =
+                                Commands.slash(command.getName(), command.getDescription());
 
-                command.getArguments().forEach((name, arg) -> scd.addOption(
-                    arg.getType(), name, arg.getDescription(),
-                    arg.isRequired(), arg.shouldAutocomplete()
-                ));
-                return scd;
-            };
+                        command.getArguments()
+                                .forEach(
+                                        (name, arg) ->
+                                                scd.addOption(
+                                                        arg.getType(),
+                                                        name,
+                                                        arg.getDescription(),
+                                                        arg.isRequired(),
+                                                        arg.shouldAutocomplete()));
+                        return scd;
+                    };
             log.info("Attempting to register " + commands.size() + " commands...");
-            Collection<CommandData> localData = commands.stream()
-                .filter(cmd -> !cmd.isGlobal())
-                .map(commandConsumer)
-                .collect(Collectors.toList());
+            Collection<CommandData> localData =
+                    commands.stream()
+                            .filter(cmd -> !cmd.isGlobal())
+                            .map(commandConsumer)
+                            .collect(Collectors.toList());
 
-            Collection<CommandData> globalData = commands.stream()
-                .filter(BotCommand::isGlobal)
-                .map(commandConsumer)
-                .collect(Collectors.toList());
+            Collection<CommandData> globalData =
+                    commands.stream()
+                            .filter(BotCommand::isGlobal)
+                            .map(commandConsumer)
+                            .collect(Collectors.toList());
 
             guild.updateCommands().addCommands(localData).queue();
             jda.updateCommands().addCommands(globalData).queue();
@@ -152,8 +152,7 @@ public class App implements ApplicationRunner {
     }
 
     public static Translator getTranslator() {
-        if  (translator == null)
-            translator = new Translator(App.getenv("KEY_DEEPL"));
+        if (translator == null) translator = new Translator(App.getenv("KEY_DEEPL"));
 
         return translator;
     }

@@ -4,11 +4,10 @@ import bot.Constants;
 import bot.entity.word.CachedWord;
 import bot.entity.word.JournalWord;
 import bot.service.WordCacheService;
+import java.util.Optional;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 public class QuestionFactory {
@@ -20,17 +19,19 @@ public class QuestionFactory {
         this.wordsService = wordsService;
     }
 
-    public FlashcardQuestion createFlashcardQuestion(int id,
-                                                     JournalWord word) {
+    public FlashcardQuestion createFlashcardQuestion(int id, JournalWord word) {
         final FlashcardQuestion question = new FlashcardQuestion(id, word);
 
         // Construct question embed
         EmbedBuilder questionEmbed = new EmbedBuilder();
         questionEmbed.setAuthor("Question #" + id);
         questionEmbed.setTitle("What is the definition of the word \"" + word + "\"? 🤔");
-        questionEmbed.addField("", "Try to guess the meaning of the" +
-            " word and after you think you got it, click on the" +
-            " **Reveal Answer** below.", false);
+        questionEmbed.addField(
+                "",
+                "Try to guess the meaning of the"
+                        + " word and after you think you got it, click on the"
+                        + " **Reveal Answer** below.",
+                false);
         questionEmbed.setColor(Constants.EMBED_COLOR);
         question.setQuestion(questionEmbed.build());
 
@@ -40,10 +41,7 @@ public class QuestionFactory {
         answerEmbed.setTitle("📖 The definition of \"" + word + "\" is:");
 
         Optional<CachedWord.Definition> definitionOptional =
-            wordsService.getDefinitionByIndex(
-                word.getWord(),
-                word.getDefinitionIndex()
-            );
+                wordsService.getDefinitionByIndex(word.getWord(), word.getDefinitionIndex());
 
         if (definitionOptional.isEmpty()) {
             answerEmbed.addField("", "Well, this is awkward, but there is no definition!", true);
@@ -52,13 +50,15 @@ public class QuestionFactory {
         }
 
         CachedWord.Definition definition = definitionOptional.get();
-        answerEmbed.addField(definition.getPartOfSpeech(),
-            "> " + definition.getDefinition(), true);
+        answerEmbed.addField(definition.getPartOfSpeech(), "> " + definition.getDefinition(), true);
 
-        answerEmbed.addField("", "On a scale of 0️⃣ to 5️⃣, click on the buttons below to" +
-            " indicate how well you guessed the definition of the word.\n\n" +
-            "- 0️⃣: *Your mind completely went blank over the definition.*\n" +
-            "- 5️⃣: *You remembered the word's definition perfectly!*", false);
+        answerEmbed.addField(
+                "",
+                "On a scale of 0️⃣ to 5️⃣, click on the buttons below to"
+                        + " indicate how well you guessed the definition of the word.\n\n"
+                        + "- 0️⃣: *Your mind completely went blank over the definition.*\n"
+                        + "- 5️⃣: *You remembered the word's definition perfectly!*",
+                false);
         question.setAnswer(answerEmbed.build());
         return question;
     }

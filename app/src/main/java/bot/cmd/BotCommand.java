@@ -1,14 +1,11 @@
 package bot.cmd;
 
-import bot.Constants;
-import lombok.Getter;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -27,8 +24,7 @@ public abstract class BotCommand extends ListenerAdapter {
     /** A map of all the possible command arguments. */
     private final Map<String, CommandArgument> arguments = new HashMap<>();
 
-    @Getter
-    private final boolean isGlobal;
+    @Getter private final boolean isGlobal;
 
     public BotCommand(String name, String description, boolean isGlobal) {
         this.name = name;

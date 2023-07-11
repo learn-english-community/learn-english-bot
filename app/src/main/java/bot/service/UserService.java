@@ -4,16 +4,13 @@ import bot.entity.User;
 import bot.entity.word.JournalWord;
 import bot.entity.word.Word;
 import bot.repository.UserRepository;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-/**
- * User service component.
- */
+/** User service component. */
 @Service
 public class UserService {
 
@@ -26,6 +23,7 @@ public class UserService {
 
     /**
      * Inserts a new user to the database.
+     *
      * @param user The user to insert
      */
     public void createUser(@NonNull User user) {
@@ -71,9 +69,10 @@ public class UserService {
         if (user != null) {
             int start = page * count;
 
-            List<JournalWord> words = user.getWords().stream()
-                .sorted(Comparator.comparingLong(JournalWord::getTimeAdded).reversed())
-                .collect(Collectors.toList());
+            List<JournalWord> words =
+                    user.getWords().stream()
+                            .sorted(Comparator.comparingLong(JournalWord::getTimeAdded).reversed())
+                            .collect(Collectors.toList());
 
             int totalWords = words.size();
             int totalPages = (int) Math.ceil((double) totalWords / count);
@@ -101,8 +100,8 @@ public class UserService {
         List<JournalWord> words = getJournalWords(discordId);
 
         for (JournalWord journalWord : words) {
-            if (journalWord.getWord().equalsIgnoreCase(word) && journalWord.getDefinitionIndex() == index)
-                return journalWord;
+            if (journalWord.getWord().equalsIgnoreCase(word)
+                    && journalWord.getDefinitionIndex() == index) return journalWord;
         }
         return null;
     }
@@ -129,11 +128,12 @@ public class UserService {
         List<JournalWord> words = getJournalWords(discordId);
 
         return words.stream()
-            .filter(w -> w.getDefinitionIndex() == definitionIndex)
-            .map(Word::getWord)
-            .collect(Collectors.toList())
-            .contains(word);
+                .filter(w -> w.getDefinitionIndex() == definitionIndex)
+                .map(Word::getWord)
+                .collect(Collectors.toList())
+                .contains(word);
     }
+
     /**
      * Updates a journal word's data using the SuperMemo algorithm.
      *
@@ -144,9 +144,13 @@ public class UserService {
      */
     public void updateWordSuperMemo(String discordId, String wordString, int index, int quality) {
         User user = userRepository.findUserByDiscordId(discordId);
-        Optional<JournalWord> optionalWord = user.getWords().stream()
-            .filter(w -> w.getDefinitionIndex() == index && w.getWord().equalsIgnoreCase(wordString))
-            .findFirst();
+        Optional<JournalWord> optionalWord =
+                user.getWords().stream()
+                        .filter(
+                                w ->
+                                        w.getDefinitionIndex() == index
+                                                && w.getWord().equalsIgnoreCase(wordString))
+                        .findFirst();
 
         if (quality < 0 || quality > 5) return;
         if (wordString == null || optionalWord.isEmpty()) return;
@@ -156,7 +160,11 @@ public class UserService {
         float easiness = word.getEasiness();
         int interval = word.getInterval();
 
-        easiness = (float) Math.max(1.3, easiness + 0.1 - (5.0 - quality) * (0.08 + (5.0 - quality) * 0.02));
+        easiness =
+                (float)
+                        Math.max(
+                                1.3,
+                                easiness + 0.1 - (5.0 - quality) * (0.08 + (5.0 - quality) * 0.02));
 
         if (quality < 3) {
             repetitions = 0;

@@ -2,17 +2,15 @@ package bot.view;
 
 import bot.Constants;
 import bot.entity.word.CachedWord;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 public class WordCacheView {
 
     /**
-     * Gets a WordsAPI response and converts it into a fancy Discord
-     * embed.
+     * Gets a WordsAPI response and converts it into a fancy Discord embed.
      *
      * @param cachedWord The WordsAPI response
      * @return An EmbedBuilder instance of the embed
@@ -32,27 +30,28 @@ public class WordCacheView {
         embed.setTitle("Learn English™ Dictionary");
         embed.setFooter("• Data provided by WordsAPI");
         embed.setColor(Constants.EMBED_COLOR);
-        embed.setDescription(pronunciation != null ?
-            responseWord + " – " + ipa : responseWord
-        );
+        embed.setDescription(pronunciation != null ? responseWord + " – " + ipa : responseWord);
 
         final String emptyFieldLine = "> \u200E";
 
         if (cachedWord.getResults() != null) {
             for (CachedWord.Definition definition : cachedWord.getResults()) {
-                if (embed.getFields().size() >= Constants.MAX_DEFINITION_FIELDS)
-                    break;
+                if (embed.getFields().size() >= Constants.MAX_DEFINITION_FIELDS) break;
 
                 String name = definition.getPartOfSpeech();
                 StringBuilder value = new StringBuilder();
-                String synonyms = definition.getSynonyms() != null ?
-                    definition.getSynonyms().stream()
-                        .distinct()
-                        .collect(Collectors.joining(", ")) : null;
-                String similarTo = definition.getSimilarTo() != null ?
-                    definition.getSimilarTo().stream()
-                        .distinct()
-                        .collect(Collectors.joining(", ")) : null;
+                String synonyms =
+                        definition.getSynonyms() != null
+                                ? definition.getSynonyms().stream()
+                                        .distinct()
+                                        .collect(Collectors.joining(", "))
+                                : null;
+                String similarTo =
+                        definition.getSimilarTo() != null
+                                ? definition.getSimilarTo().stream()
+                                        .distinct()
+                                        .collect(Collectors.joining(", "))
+                                : null;
 
                 List<String> exampleSentences = definition.getExamples();
                 String exampleLine = "";
@@ -65,13 +64,15 @@ public class WordCacheView {
                 if (synonyms != null && similarTo != null) {
                     value.append(emptyFieldLine + System.lineSeparator());
                     value.append("> " + toHeader("Synonyms") + synonyms + System.lineSeparator());
-                    value.append("> " + toHeader("Similar to") + similarTo + System.lineSeparator());
+                    value.append(
+                            "> " + toHeader("Similar to") + similarTo + System.lineSeparator());
                 } else if (synonyms != null) {
                     value.append(emptyFieldLine + System.lineSeparator());
                     value.append("> " + toHeader("Synonyms") + synonyms + System.lineSeparator());
                 } else if (similarTo != null) {
                     value.append(emptyFieldLine + System.lineSeparator());
-                    value.append("> " + toHeader("Similar to") + similarTo + System.lineSeparator());
+                    value.append(
+                            "> " + toHeader("Similar to") + similarTo + System.lineSeparator());
                 }
 
                 if (!exampleLine.isEmpty()) {

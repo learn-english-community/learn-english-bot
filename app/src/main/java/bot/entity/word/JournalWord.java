@@ -5,69 +5,49 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
 public class JournalWord extends Word {
-    /**
-     * A timestamp that indicates the time this word was added.
-     */
+    /** A timestamp that indicates the time this word was added. */
     private long timeAdded;
 
-    /**
-     * The index of the definition that the user has saved.
-     */
+    /** The index of the definition that the user has saved. */
     private int definitionIndex;
 
-    /**
-     * SuperMemo algorithm value.
-     */
+    /** SuperMemo algorithm value. */
     private int repetitions;
 
-    /**
-     * SuperMemo algorithm value.
-     */
+    /** SuperMemo algorithm value. */
     private int quality;
 
-    /**
-     * SuperMemo algorithm value.
-     */
+    /** SuperMemo algorithm value. */
     private float easiness;
 
-    /**
-     * SuperMemo algorithm value.
-     */
+    /** SuperMemo algorithm value. */
     private int interval;
 
-    /**
-     * A timestamp that indicates the time this word was added.
-     */
+    /** A timestamp that indicates the time this word was added. */
     private long lastPracticed;
 
-    /**
-     * SuperMemo algorithm value.
-     */
+    /** SuperMemo algorithm value. */
     private long nextPractice;
 
     /**
      * Calculates a user-friendly quality indicator.
-     * <p>
-     * The idea of this quality indicator is that it gets the last
-     * chosen quality that the user picked, and as the next practice
-     * timestamp gets closer or surpassed, the quality yields quality
-     * values closer to 1. The maximum quality value is 4. The quality
-     * is one if it has surpassed it or has touched the timestamp.
-     * <p>
-     * For instance, if the word has been checked very recently,
-     * the quality should be 4, as the time difference between the time
-     * practiced and the time moments later would be minimal. But with the
-     * passage of time, it should lower down to a quality of 1 as we get closer
-     * to the next practice time. It should be exactly 1 if we have surpassed,
-     * or we are in the timestamp that indicated that the word should be
-     * practiced.
+     *
+     * <p>The idea of this quality indicator is that it gets the last chosen quality that the user
+     * picked, and as the next practice timestamp gets closer or surpassed, the quality yields
+     * quality values closer to 1. The maximum quality value is 4. The quality is one if it has
+     * surpassed it or has touched the timestamp.
+     *
+     * <p>For instance, if the word has been checked very recently, the quality should be 4, as the
+     * time difference between the time practiced and the time moments later would be minimal. But
+     * with the passage of time, it should lower down to a quality of 1 as we get closer to the next
+     * practice time. It should be exactly 1 if we have surpassed, or we are in the timestamp that
+     * indicated that the word should be practiced.
      *
      * @return The quality of this word
      */

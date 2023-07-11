@@ -1,17 +1,15 @@
 package bot.entity.word;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
 @Document("cache_words")
 public class CachedWord extends Word {
 
-    @Getter @Setter
-    private long lastUpdate;
+    @Getter @Setter private long lastUpdate;
 
     @SerializedName("success")
     private boolean success;
@@ -63,8 +61,8 @@ public class CachedWord extends Word {
     }
 
     public static class Definition {
-        @Getter @Setter
-        private int index;
+        @Getter @Setter private int index;
+
         @SerializedName("definition")
         private String definition;
 
@@ -213,7 +211,6 @@ public class CachedWord extends Word {
     }
 
     public static class Pronunciation {
-        @Getter @Setter
-        private String content;
+        @Getter @Setter private String content;
     }
 }

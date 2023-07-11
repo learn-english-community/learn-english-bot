@@ -1,6 +1,5 @@
 package bot.view.paginator;
 
-
 import net.dv8tion.jda.api.entities.User;
 
 public abstract class Paginator<T> {
@@ -10,7 +9,5 @@ public abstract class Paginator<T> {
      */
     public abstract T getPage(User user, int idx, int count);
 
-    protected void renderButtons(T t) {
-
-    }
+    protected void renderButtons(T t) {}
 }

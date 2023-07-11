@@ -3,7 +3,6 @@ package bot.util;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import bot.entity.User;
 import com.deepl.api.Language;
 import java.util.List;
 import org.junit.Before;

@@ -8,6 +8,9 @@ import bot.quiz.QuizFactory;
 import bot.quiz.question.FlashcardQuestion;
 import bot.service.UserService;
 import bot.view.JournalView;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.function.Supplier;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -20,10 +23,6 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.function.Supplier;
-
 @Component
 public class JournalCommand extends BotCommand {
 
@@ -35,9 +34,8 @@ public class JournalCommand extends BotCommand {
     private final UserService userService;
 
     @Autowired
-    public JournalCommand(JournalView journalView,
-                          QuizFactory quizFactory,
-                          UserService userService) {
+    public JournalCommand(
+            JournalView journalView, QuizFactory quizFactory, UserService userService) {
         super("journal", "Check your journal!", true);
         this.journalView = journalView;
         this.quizFactory = quizFactory;
@@ -52,20 +50,19 @@ public class JournalCommand extends BotCommand {
 
         if (channelType.equals(ChannelType.PRIVATE)) {
             if (journalDisplay.getErrorMessage() != null) {
-                event.reply(journalDisplay.getErrorMessage()).setEphemeral(true)
-                    .queue();
+                event.reply(journalDisplay.getErrorMessage()).setEphemeral(true).queue();
                 return;
             }
 
             event.reply(journalDisplay.getMessage())
-                .addEmbeds(journalDisplay.getWords())
-                .setEphemeral(true)
-                .addActionRow(journalDisplay.getActionButtons())
-                .queue();
+                    .addEmbeds(journalDisplay.getWords())
+                    .setEphemeral(true)
+                    .addActionRow(journalDisplay.getActionButtons())
+                    .queue();
         } else {
             event.reply("You can only send this command as a direct message! :blue_book:")
-                .setEphemeral(true)
-                .queue();
+                    .setEphemeral(true)
+                    .queue();
         }
     }
 
@@ -79,14 +76,13 @@ public class JournalCommand extends BotCommand {
             FlashcardQuizFilter filter = FlashcardQuizFilter.getByLabel(type);
             Supplier<Modal> modalSupplier = filter.getMetadataModal();
 
-            if (modalSupplier != null)
-                event.replyModal(modalSupplier.get()).queue();
+            if (modalSupplier != null) event.replyModal(modalSupplier.get()).queue();
             else {
                 event.deferEdit().queue();
                 event.getHook().deleteOriginal().queue();
-                FlashcardQuiz quiz = quizFactory.getFlashcardQuiz(
-                    user, event.getChannel().asPrivateChannel(),
-                    filter, null);
+                FlashcardQuiz quiz =
+                        quizFactory.getFlashcardQuiz(
+                                user, event.getChannel().asPrivateChannel(), filter, null);
                 quiz.start();
             }
         }
@@ -103,60 +99,70 @@ public class JournalCommand extends BotCommand {
         // what words to include.
         if (id.contains("exercise")) {
             if (FlashcardQuiz.getInstance(user.getId()).isPresent()) {
-                event.getHook().editOriginal("There is already a quiz in progress! ⭐️")
-                    .setEmbeds(Collections.emptyList())
-                    .queue();
+                event.getHook()
+                        .editOriginal("There is already a quiz in progress! ⭐️")
+                        .setEmbeds(Collections.emptyList())
+                        .queue();
                 return;
             }
 
-            StringSelectMenu.Builder menu = StringSelectMenu.create(JournalDisplay.PREFIX + "filter");
-            Arrays.stream(FlashcardQuizFilter.values()).forEach(f ->
-                menu.addOption(f.getTitle(),
-                    PREFIX + f.getLabel(),
-                    f.getDescription(),
-                    f.getEmoji())
-            );
-            event.getHook().editOriginal("Select the words you want to practice with:")
-                .setEmbeds(Collections.emptyList())
-                .setActionRow(menu.build())
-                .queue();
+            StringSelectMenu.Builder menu =
+                    StringSelectMenu.create(JournalDisplay.PREFIX + "filter");
+            Arrays.stream(FlashcardQuizFilter.values())
+                    .forEach(
+                            f ->
+                                    menu.addOption(
+                                            f.getTitle(),
+                                            PREFIX + f.getLabel(),
+                                            f.getDescription(),
+                                            f.getEmoji()));
+            event.getHook()
+                    .editOriginal("Select the words you want to practice with:")
+                    .setEmbeds(Collections.emptyList())
+                    .setActionRow(menu.build())
+                    .queue();
             return;
         }
 
         // A "Reveal" button was clicked during a quiz.
         if (id.contains("flashcard-reveal")) {
             System.out.println("bob");
-            FlashcardQuiz.getInstance(user.getId()).ifPresent(q -> {
-                System.out.println("asd");
-                q.showAnswer();
-            });
+            FlashcardQuiz.getInstance(user.getId())
+                    .ifPresent(
+                            q -> {
+                                System.out.println("asd");
+                                q.showAnswer();
+                            });
             return;
         }
 
         // A ranking button was clicked during a quiz answer.
         if (id.contains("flashcard-answer")) {
-            FlashcardQuiz.getInstance(user.getId()).ifPresent(quiz -> {
-                FlashcardQuestion question = (FlashcardQuestion) quiz.getCurrentQuestion();
-                JournalWord word = question.getWord();
+            FlashcardQuiz.getInstance(user.getId())
+                    .ifPresent(
+                            quiz -> {
+                                FlashcardQuestion question =
+                                        (FlashcardQuestion) quiz.getCurrentQuestion();
+                                JournalWord word = question.getWord();
 
-                userService.updateWordSuperMemo(
-                    user.getId(),
-                    word.getWord(),
-                    word.getDefinitionIndex(),
-                    word.getQuality()
-                );
-                quiz.showQuestion();
-            });
+                                userService.updateWordSuperMemo(
+                                        user.getId(),
+                                        word.getWord(),
+                                        word.getDefinitionIndex(),
+                                        word.getQuality());
+                                quiz.showQuestion();
+                            });
             return;
         }
 
         int page = Integer.parseInt(id.split(":")[1]);
         JournalDisplay journalDisplay = journalView.getUserJournalDisplay(user, page, WORDS_COUNT);
 
-        event.getHook().editOriginal(journalDisplay.getMessage())
-            .setEmbeds(journalDisplay.getWords())
-            .setActionRow(journalDisplay.getActionButtons())
-            .queue();
+        event.getHook()
+                .editOriginal(journalDisplay.getMessage())
+                .setEmbeds(journalDisplay.getWords())
+                .setActionRow(journalDisplay.getActionButtons())
+                .queue();
     }
 
     @Override
@@ -170,9 +176,9 @@ public class JournalCommand extends BotCommand {
 
         if (filter != null) {
             event.reply("The quiz has started!").setEphemeral(true).queue();
-            FlashcardQuiz quiz = quizFactory.getFlashcardQuiz(
-                user, event.getChannel().asPrivateChannel(),
-                filter, value);
+            FlashcardQuiz quiz =
+                    quizFactory.getFlashcardQuiz(
+                            user, event.getChannel().asPrivateChannel(), filter, value);
             quiz.start();
         }
     }

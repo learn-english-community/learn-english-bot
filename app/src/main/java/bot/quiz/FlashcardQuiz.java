@@ -3,17 +3,14 @@ package bot.quiz;
 import bot.quiz.question.FlashcardQuestion;
 import bot.quiz.question.Question;
 import bot.service.UserService;
+import java.util.*;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.util.*;
-
-/**
- * Represents flashcard quiz, mostly used by user journals.
- */
+/** Represents flashcard quiz, mostly used by user journals. */
 @Getter
 public class FlashcardQuiz extends Quiz<MessageEmbed> {
 
@@ -25,10 +22,11 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
 
     private static final Map<String, FlashcardQuiz> quizes = new HashMap<>();
 
-    protected FlashcardQuiz(User user,
-                            UserService userService,
-                            PrivateChannel channel,
-                            Map<Integer, Question<MessageEmbed>> questions) {
+    protected FlashcardQuiz(
+            User user,
+            UserService userService,
+            PrivateChannel channel,
+            Map<Integer, Question<MessageEmbed>> questions) {
         this.user = user;
         this.userService = userService;
         this.channel = channel;
@@ -54,10 +52,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
         for (int i = 1; i <= 5; i++) {
             int hex = 0x20E3 + i;
 
-            Button button = Button.primary(
-                "flashcard-answer-" + i,
-                String.valueOf(i)
-            );
+            Button button = Button.primary("flashcard-answer-" + i, String.valueOf(i));
 
             buttons.add(button);
         }
@@ -80,9 +75,9 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
             channel.deleteMessageById(this.getLastMessageId()).queue();
 
         channel.sendMessage("")
-            .setEmbeds(messageEmbed)
-            .setActionRow(buttons)
-            .queue(message -> lastMessageId = message.getId());
+                .setEmbeds(messageEmbed)
+                .setActionRow(buttons)
+                .queue(message -> lastMessageId = message.getId());
     }
 
     @Override

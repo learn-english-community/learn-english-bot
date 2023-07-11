@@ -15,9 +15,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 public abstract class Word {
     @Id private ObjectId id;
 
-    /**
-     * The word text.
-     */
-    @Indexed
-    private String word;
+    /** The word text. */
+    @Indexed private String word;
 }

@@ -1,10 +1,9 @@
 package bot;
 
-import bot.entity.word.Word;
 import bot.service.WordCacheService;
 import bot.view.WordCacheView;
-import lombok.extern.log4j.Log4j2;
 import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
@@ -57,7 +56,8 @@ public class WOTDHandler {
             return;
         }
         WordCacheView wordCacheView = new WordCacheView();
-        EmbedBuilder embed = wordCacheView.getDefinitionEmbed(wordCacheService.getRandomWordFromAPI());
+        EmbedBuilder embed =
+                wordCacheView.getDefinitionEmbed(wordCacheService.getRandomWordFromAPI());
         textChannel.sendMessage(role.getAsMention()).setEmbeds(embed.build()).queue();
     }
 }

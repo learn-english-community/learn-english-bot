@@ -1,14 +1,13 @@
 package bot.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Builder
@@ -19,12 +18,10 @@ public class JournalDisplay {
     private String errorMessage;
     private final int maxPages;
 
-    @Setter
-    private int page;
+    @Setter private int page;
 
     /**
-     * Returns a list of action buttons that act as
-     * handlers for the paginator feature.
+     * Returns a list of action buttons that act as handlers for the paginator feature.
      *
      * @return The list of action buttons
      */
@@ -49,8 +46,8 @@ public class JournalDisplay {
             nextBtn = nextBtn.asDisabled();
         }
 
-        Button exerciseBtn = Button.primary(PREFIX + "exercise", Emoji.fromUnicode("💪"))
-            .withLabel("Practice");
+        Button exerciseBtn =
+                Button.primary(PREFIX + "exercise", Emoji.fromUnicode("💪")).withLabel("Practice");
 
         return new ArrayList<>(List.of(exerciseBtn, firstBtn, prevBtn, nextBtn, lastBtn));
     }
