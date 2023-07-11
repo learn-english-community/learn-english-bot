@@ -1,7 +1,9 @@
 package bot.quiz;
 
+import bot.quiz.question.Question;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.Map;
@@ -16,10 +18,15 @@ public abstract class Quiz<T> {
     protected User user;
 
     protected Map<Integer, Question<T>> questions;
+
     /**
      * The question that the user is currently in
      */
-    private int currentQuestion;
+    @Setter
+    private int currentQuestionId;
+
+    @Setter
+    private Question<T> currentQuestion;
 
     public Quiz() {}
 

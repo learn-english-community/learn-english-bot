@@ -1,10 +1,10 @@
-package bot.quiz;
+package bot.quiz.question;
 
 import bot.Constants;
 import bot.entity.word.CachedWord;
+import bot.entity.word.JournalWord;
 import bot.service.WordCacheService;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,9 +20,9 @@ public class QuestionFactory {
         this.wordsService = wordsService;
     }
 
-    public Question<MessageEmbed> createFlashcardQuestion(int id,
-                                                          String word) {
-        final Question<MessageEmbed> question = new Question<>(id);
+    public FlashcardQuestion createFlashcardQuestion(int id,
+                                                     JournalWord word) {
+        final FlashcardQuestion question = new FlashcardQuestion(id, word);
 
         // Construct question embed
         EmbedBuilder questionEmbed = new EmbedBuilder();
@@ -39,8 +39,11 @@ public class QuestionFactory {
         answerEmbed.setAuthor("Question #" + id);
         answerEmbed.setTitle("📖 The definition of \"" + word + "\" is:");
 
-        CachedWord cachedWord = wordsService.findWord(word);
-        Optional<CachedWord.Definition> definitionOptional = wordsService.getDefinitionByIndex(word, id);
+        Optional<CachedWord.Definition> definitionOptional =
+            wordsService.getDefinitionByIndex(
+                word.getWord(),
+                word.getDefinitionIndex()
+            );
 
         if (definitionOptional.isEmpty()) {
             answerEmbed.addField("", "Well, this is awkward, but there is no definition!", true);

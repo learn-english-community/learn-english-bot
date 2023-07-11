@@ -12,9 +12,9 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -38,8 +38,7 @@ public enum FlashcardQuizFilter {
         "Word quality", "Select words based on the given quality.",
         Emoji.fromUnicode("✨"),
         (user, metadata) -> {
-            if (!(metadata instanceof Integer)) return Collections.emptyList();
-            int quality = (int) metadata;
+            int quality = Integer.parseInt(metadata.getAsString());
 
             return user.getWords().stream()
                 .filter(w -> w.getQuality() == quality)
@@ -47,7 +46,7 @@ public enum FlashcardQuizFilter {
         },
         () -> {
             String id = JournalCommand.PREFIX + "word-quality";
-            TextInput textInput = TextInput.create("input", "Enter the desired quality", TextInputStyle.SHORT)
+            TextInput textInput = TextInput.create("practice-input", "Enter the desired quality", TextInputStyle.SHORT)
                 .setPlaceholder("A number from 1 to 4")
                 .setRequiredRange(1, 4)
                 .setRequired(true)
@@ -61,8 +60,7 @@ public enum FlashcardQuizFilter {
         "Part of speech", "Practice words based on their type.",
         Emoji.fromUnicode("💬"),
         (user, metadata) -> {
-            if (!(metadata instanceof String)) return Collections.emptyList();
-            String partOfSpeech = (String) metadata;
+            String partOfSpeech = metadata.getAsString();
 
             // @Christolis: I guess there's no other way to acquire this bean.
             WordCacheService wordCacheService = SpringContext.getBean(WordCacheService.class);
@@ -82,7 +80,7 @@ public enum FlashcardQuizFilter {
         },
         () -> {
             String id = JournalCommand.PREFIX + "part-of-speech";
-            TextInput textInput = TextInput.create("input", "Enter the desired part of speech", TextInputStyle.SHORT)
+            TextInput textInput = TextInput.create("practice-input", "Enter the desired part of speech", TextInputStyle.SHORT)
                 .setPlaceholder("e.g noun, verb, adjective")
                 .setRequired(true)
                 .build();
@@ -95,9 +93,9 @@ public enum FlashcardQuizFilter {
         "Recent", "Practice recently added words.",
         Emoji.fromUnicode("⏳"),
         (user, metadata) -> {
-            if (!(metadata instanceof Long)) return Collections.emptyList();
             long now = System.currentTimeMillis();
-            Long rangeMs = (Long) metadata;
+            int range = Integer.parseInt(metadata.getAsString());
+            long rangeMs = (long) range * 1000 * 60 * 60 * 24;
 
             return user.getWords().stream()
                 .filter(w -> now - w.getLastPracticed() < rangeMs)
@@ -105,7 +103,7 @@ public enum FlashcardQuizFilter {
         },
         () -> {
             String id = JournalCommand.PREFIX + "recent";
-            TextInput textInput = TextInput.create("input", "Enter time (in days)", TextInputStyle.SHORT)
+            TextInput textInput = TextInput.create("practice-input", "Enter time (in days)", TextInputStyle.SHORT)
                 .setRequiredRange(1, 30)
                 .setRequired(true)
                 .build();
@@ -118,9 +116,9 @@ public enum FlashcardQuizFilter {
         "Old", "Practice words that you added a long time ago.",
         Emoji.fromUnicode("🕰️"),
         (user, metadata) -> {
-            if (!(metadata instanceof Long)) return Collections.emptyList();
             long now = System.currentTimeMillis();
-            Long rangeMs = (Long) metadata;
+            int range = Integer.parseInt(metadata.getAsString());
+            long rangeMs = (long) range * 1000 * 60 * 60 * 24;
 
             return user.getWords().stream()
                 .filter(w -> now - w.getLastPracticed() >= rangeMs)
@@ -128,7 +126,7 @@ public enum FlashcardQuizFilter {
         },
         () -> {
             String id = JournalCommand.PREFIX + "old";
-            TextInput textInput = TextInput.create("input", "Enter time (in days)", TextInputStyle.SHORT)
+            TextInput textInput = TextInput.create("practice-input", "Enter time (in days)", TextInputStyle.SHORT)
                 .setRequiredRange(1, 90)
                 .setRequired(true)
                 .build();
@@ -159,13 +157,13 @@ public enum FlashcardQuizFilter {
     private final Supplier<Modal> metadataModal;
 
     @Getter
-    private final BiFunction<User, Object, List<JournalWord>> filterProcessor;
+    private final BiFunction<User, ModalMapping, List<JournalWord>> filterProcessor;
 
     FlashcardQuizFilter(String label,
                         String title,
                         String description,
                         Emoji emoji,
-                        BiFunction<User, Object, List<JournalWord>> filterProcessor,
+                        BiFunction<User, ModalMapping, List<JournalWord>> filterProcessor,
                         Supplier<Modal> metadataModal) {
         this.label = label;
         this.title = title;

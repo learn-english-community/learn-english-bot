@@ -1,10 +1,13 @@
 package bot.quiz;
 
+import bot.quiz.question.Question;
+import bot.quiz.question.QuestionFactory;
 import bot.service.UserService;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,14 +33,14 @@ public class QuizFactory {
     public FlashcardQuiz getFlashcardQuiz(User discordUser,
                                           PrivateChannel channel,
                                           FlashcardQuizFilter filter,
-                                          Object metadata) {
+                                          ModalMapping metadata) {
         Map<Integer, Question<MessageEmbed>> questions = new HashMap<>();
         bot.entity.User user = userService.getUser(discordUser.getId());
         AtomicInteger counter = new AtomicInteger(1);
 
         filter.getFilterProcessor().apply(user, metadata).forEach(word -> {
             Question<MessageEmbed> question = questionFactory.createFlashcardQuestion(
-                counter.get(), word.getWord()
+                counter.get(), word
             );
             questions.put(counter.getAndIncrement(), question);
         });

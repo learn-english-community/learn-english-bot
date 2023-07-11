@@ -83,4 +83,9 @@ public class JournalWord extends Word {
 
         return Math.max(1, n);
     }
+
+    @Override
+    public String toString() {
+        return this.getWord();
+    }
 }

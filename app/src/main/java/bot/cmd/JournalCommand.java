@@ -1,17 +1,22 @@
 package bot.cmd;
 
 import bot.entity.JournalDisplay;
+import bot.entity.word.JournalWord;
 import bot.quiz.FlashcardQuiz;
 import bot.quiz.FlashcardQuizFilter;
 import bot.quiz.QuizFactory;
+import bot.quiz.question.FlashcardQuestion;
+import bot.service.UserService;
 import bot.view.JournalView;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,12 +32,16 @@ public class JournalCommand extends BotCommand {
     private final JournalView journalView;
 
     private final QuizFactory quizFactory;
+    private final UserService userService;
 
     @Autowired
-    public JournalCommand(JournalView journalView, QuizFactory quizFactory) {
+    public JournalCommand(JournalView journalView,
+                          QuizFactory quizFactory,
+                          UserService userService) {
         super("journal", "Check your journal!", true);
         this.journalView = journalView;
         this.quizFactory = quizFactory;
+        this.userService = userService;
     }
 
     @Override
@@ -90,8 +99,6 @@ public class JournalCommand extends BotCommand {
 
         event.deferEdit().queue();
 
-        if (!id.startsWith("journal-")) return;
-
         // Display to the user the dropdown menu asking them
         // what words to include.
         if (id.contains("exercise")) {
@@ -116,6 +123,33 @@ public class JournalCommand extends BotCommand {
             return;
         }
 
+        // A "Reveal" button was clicked during a quiz.
+        if (id.contains("flashcard-reveal")) {
+            System.out.println("bob");
+            FlashcardQuiz.getInstance(user.getId()).ifPresent(q -> {
+                System.out.println("asd");
+                q.showAnswer();
+            });
+            return;
+        }
+
+        // A ranking button was clicked during a quiz answer.
+        if (id.contains("flashcard-answer")) {
+            FlashcardQuiz.getInstance(user.getId()).ifPresent(quiz -> {
+                FlashcardQuestion question = (FlashcardQuestion) quiz.getCurrentQuestion();
+                JournalWord word = question.getWord();
+
+                userService.updateWordSuperMemo(
+                    user.getId(),
+                    word.getWord(),
+                    word.getDefinitionIndex(),
+                    word.getQuality()
+                );
+                quiz.showQuestion();
+            });
+            return;
+        }
+
         int page = Integer.parseInt(id.split(":")[1]);
         JournalDisplay journalDisplay = journalView.getUserJournalDisplay(user, page, WORDS_COUNT);
 
@@ -123,5 +157,23 @@ public class JournalCommand extends BotCommand {
             .setEmbeds(journalDisplay.getWords())
             .setActionRow(journalDisplay.getActionButtons())
             .queue();
+    }
+
+    @Override
+    public void onModalInteraction(ModalInteractionEvent event) {
+        String id = event.getModalId();
+        String type = id.split("-", 3)[2];
+        ModalMapping value = event.getValue("practice-input");
+        User user = event.getUser();
+
+        FlashcardQuizFilter filter = FlashcardQuizFilter.getByLabel(type);
+
+        if (filter != null) {
+            event.reply("The quiz has started!").setEphemeral(true).queue();
+            FlashcardQuiz quiz = quizFactory.getFlashcardQuiz(
+                user, event.getChannel().asPrivateChannel(),
+                filter, value);
+            quiz.start();
+        }
     }
 }

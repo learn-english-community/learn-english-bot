@@ -1,4 +1,4 @@
-package bot.quiz;
+package bot.quiz.question;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Question<T> implements Comparable<Question<T>> {
+public abstract class Question<T> implements Comparable<Question<T>> {
 
     private final int id;
     private T question;
