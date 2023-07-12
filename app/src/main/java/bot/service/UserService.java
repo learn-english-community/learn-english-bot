@@ -1,6 +1,7 @@
 package bot.service;
 
 import bot.entity.User;
+import bot.entity.session.Session;
 import bot.entity.word.JournalWord;
 import bot.entity.word.Word;
 import bot.repository.UserRepository;
@@ -53,6 +54,86 @@ public class UserService {
             return user.getWords();
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * @param discordId The Discord ID of the user.
+     * @return A list of all the user's sessions
+     */
+    public List<Session> getSessions(@NonNull String discordId) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            return user.getSessions();
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * @param discordId The Discord ID of the user.
+     * @return A list of all the user's sessions by index
+     */
+    public Optional<Session> getSessionByIndex(@NonNull String discordId, int index) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            return user.getSessions().stream().filter(s -> s.getIndex() == index).findFirst();
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * @param discordId The Discord ID of the user.
+     * @return A list of the user's journal words by type
+     */
+    public List<Session> getSessionsByType(@NonNull String discordId, Session.Type type) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            return user.getSessions().stream()
+                    .filter(s -> s.getType().equals(type))
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Saves a session to a user.
+     *
+     * <p>This also updates the corresponding last activity of the user.
+     *
+     * @param discordId The Discord ID of the user.
+     * @param session The session to save.
+     */
+    public void saveSession(@NonNull String discordId, Session session) {
+        User user = userRepository.findUserByDiscordId(discordId);
+        long now = System.currentTimeMillis();
+
+        if (user != null && session != null) {
+            if (user.getSessions() == null) user.setSessions(new ArrayList<>());
+
+            if (user.getLastActivity() == null) user.setLastActivity(new HashMap<>());
+
+            user.getSessions().add(session);
+            user.getLastActivity().put(session.getType().name(), now);
+            userRepository.save(user);
+        }
+    }
+
+    /**
+     * Returns the last activity timestamp by type.
+     *
+     * @param discordId The Discord ID of the user.
+     * @param type The type of the session to look for.
+     * @return The timestamp that this activity was last done.
+     */
+    public long getLastActivityByType(@NonNull String discordId, Session.Type type) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            return user.getLastActivity().get(type.name());
+        }
+        return 0L;
     }
 
     /**

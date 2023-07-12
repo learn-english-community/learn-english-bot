@@ -1,7 +1,9 @@
 package bot.entity;
 
+import bot.entity.session.Session;
 import bot.entity.word.JournalWord;
 import java.util.List;
+import java.util.Map;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -19,4 +21,8 @@ public class User {
 
     /** A list of all the words the user has saved. */
     private List<JournalWord> words;
+
+    private List<Session> sessions;
+
+    private Map<String, Long> lastActivity;
 }

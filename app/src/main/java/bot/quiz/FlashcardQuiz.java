@@ -1,6 +1,7 @@
 package bot.quiz;
 
 import bot.Constants;
+import bot.entity.session.Session;
 import bot.quiz.question.FlashcardQuestion;
 import bot.quiz.question.Question;
 import bot.service.UserService;
@@ -81,7 +82,15 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
                                             .queueAfter(10L, TimeUnit.SECONDS);
                                 });
                 finish(false);
-            } else finish(true);
+            } else {
+                Session session =
+                        Session.builder()
+                                .timestamp(System.currentTimeMillis())
+                                .type(Session.Type.JOURNAL_QUIZ)
+                                .build();
+                userService.saveSession(getUser().getId(), session);
+                finish(true);
+            }
 
             return;
         }
