@@ -18,5 +18,7 @@ public class Constants {
 
     public static final int MAX_JOURNAL_WORD_QUALITY = 4;
 
+    public static final int MIN_POINTS_FOR_STREAK = 20;
+
     public static final String DATABASE_NAME = "learn_english";
 }

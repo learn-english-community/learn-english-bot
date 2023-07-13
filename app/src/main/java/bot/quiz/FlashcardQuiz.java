@@ -5,6 +5,7 @@ import bot.entity.session.Session;
 import bot.quiz.question.FlashcardQuestion;
 import bot.quiz.question.Question;
 import bot.service.UserService;
+import bot.view.StreakView;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -126,13 +127,17 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
     public void finish(boolean announce) {
         if (announce) {
             EmbedBuilder embed = new EmbedBuilder();
+            StreakView streakView = new StreakView();
 
             embed.setTitle("End of exercise");
             embed.setDescription("You reached the end of your exercise! 💪");
             embed.setColor(Constants.EMBED_COLOR);
             embed.setImage("https://media.tenor.com/MDTYbqilAxgAAAAC/ogvhs-high-five.gif");
 
-            channel.sendMessageEmbeds(embed.build())
+            userService.addDayPoints(user.getId(), 20);
+            bot.entity.User savedUser = userService.getUser(user.getId());
+
+            channel.sendMessageEmbeds(List.of(embed.build(), streakView.getStreak(savedUser)))
                     .queue(
                             success -> {
                                 channel.deleteMessageById(success.getId())

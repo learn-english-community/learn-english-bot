@@ -5,6 +5,8 @@ import bot.entity.session.Session;
 import bot.entity.word.JournalWord;
 import bot.entity.word.Word;
 import bot.repository.UserRepository;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -134,6 +136,38 @@ public class UserService {
             return user.getLastActivity().get(type.name());
         }
         return 0L;
+    }
+
+    /**
+     * Gets the day points in a specified day.
+     *
+     * @param discordId The Discord ID of the user.
+     * @param day The day to get
+     * @return The amount of points accumulated in the day
+     */
+    public int getDayPoints(@NonNull String discordId, DayOfWeek day) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            return user.getWeeklyPoints().get(day.getValue() - 1);
+        }
+        return 0;
+    }
+
+    /**
+     * Gets the day points in a specified day.
+     *
+     * @param discordId The Discord ID of the user.
+     * @param points The amount of points to add.
+     */
+    public void addDayPoints(@NonNull String discordId, int points) {
+        User user = userRepository.findUserByDiscordId(discordId);
+        int today = LocalDate.now().getDayOfWeek().getValue() - 1;
+
+        if (user != null) {
+            user.getWeeklyPoints().set(today, user.getWeeklyPoints().get(today) + points);
+            userRepository.save(user);
+        }
     }
 
     /**

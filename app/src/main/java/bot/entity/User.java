@@ -2,8 +2,7 @@ package bot.entity;
 
 import bot.entity.session.Session;
 import bot.entity.word.JournalWord;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -22,7 +21,14 @@ public class User {
     /** A list of all the words the user has saved. */
     private List<JournalWord> words;
 
+    /** Holds an object with points accumulated for each day of the week. */
+    @Builder.Default private List<Integer> weeklyPoints = generateWeeklyPoints();
+
     private List<Session> sessions;
 
     private Map<String, Long> lastActivity;
+
+    private static List<Integer> generateWeeklyPoints() {
+        return new ArrayList<>(Collections.nCopies(7, 0));
+    }
 }
