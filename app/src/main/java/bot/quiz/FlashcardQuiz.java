@@ -141,7 +141,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
                     .queue(
                             success -> {
                                 channel.deleteMessageById(success.getId())
-                                        .queueAfter(10L, TimeUnit.SECONDS);
+                                        .queueAfter(30L, TimeUnit.SECONDS);
                             });
         }
 
