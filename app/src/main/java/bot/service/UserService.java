@@ -1,9 +1,13 @@
 package bot.service;
 
+import bot.Constants;
 import bot.entity.User;
+import bot.entity.session.Session;
 import bot.entity.word.JournalWord;
 import bot.entity.word.Word;
 import bot.repository.UserRepository;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -34,6 +38,10 @@ public class UserService {
         return userRepository.findUserByDiscordId(discordId);
     }
 
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
     /**
      * @param discordId The Discord ID of the user.
      * @return True if the user exists, false if not
@@ -53,6 +61,173 @@ public class UserService {
             return user.getWords();
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * @param discordId The Discord ID of the user.
+     * @return A list of all the user's sessions
+     */
+    public List<Session> getSessions(@NonNull String discordId) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            return user.getSessions();
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * @param discordId The Discord ID of the user.
+     * @return A list of all the user's sessions by index
+     */
+    public Optional<Session> getSessionByIndex(@NonNull String discordId, int index) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            return user.getSessions().stream().filter(s -> s.getIndex() == index).findFirst();
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * @param discordId The Discord ID of the user.
+     * @return A list of the user's journal words by type
+     */
+    public List<Session> getSessionsByType(@NonNull String discordId, Session.Type type) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            return user.getSessions().stream()
+                    .filter(s -> s.getType().equals(type))
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Saves a session to a user.
+     *
+     * <p>This also updates the corresponding last activity of the user.
+     *
+     * @param discordId The Discord ID of the user.
+     * @param session The session to save.
+     */
+    public void saveSession(@NonNull String discordId, Session session) {
+        User user = userRepository.findUserByDiscordId(discordId);
+        long now = System.currentTimeMillis();
+
+        if (user != null && session != null) {
+            if (user.getSessions() == null) user.setSessions(new ArrayList<>());
+
+            if (user.getLastActivity() == null) user.setLastActivity(new HashMap<>());
+
+            user.getSessions().add(session);
+            user.getLastActivity().put(session.getType().name(), now);
+            userRepository.save(user);
+        }
+    }
+
+    /**
+     * Returns the last activity timestamp by type.
+     *
+     * @param discordId The Discord ID of the user.
+     * @param type The type of the session to look for.
+     * @return The timestamp that this activity was last done.
+     */
+    public long getLastActivityByType(@NonNull String discordId, Session.Type type) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            return user.getLastActivity().get(type.name());
+        }
+        return 0L;
+    }
+
+    /**
+     * Gets the day points in a specified day.
+     *
+     * @param discordId The Discord ID of the user.
+     * @param day The day to get
+     * @return The amount of points accumulated in the day
+     */
+    public int getDayPoints(@NonNull String discordId, DayOfWeek day) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            return user.getWeeklyPoints().get(day.getValue() - 1);
+        }
+        return 0;
+    }
+
+    /**
+     * Gets the day points in a specified day.
+     *
+     * @param discordId The Discord ID of the user.
+     * @param points The amount of points to add.
+     */
+    public void addDayPoints(@NonNull String discordId, int points) {
+        User user = userRepository.findUserByDiscordId(discordId);
+        int today = LocalDate.now().getDayOfWeek().getValue() - 1;
+
+        if (user != null) {
+            int initialPoints = user.getWeeklyPoints().get(today);
+            user.getWeeklyPoints().set(today, user.getWeeklyPoints().get(today) + points);
+
+            boolean surpassedPts =
+                    user.getWeeklyPoints().get(today) >= Constants.MIN_POINTS_FOR_STREAK;
+            boolean justAchievedStreak = initialPoints >= Constants.MIN_POINTS_FOR_STREAK;
+
+            if (surpassedPts && !justAchievedStreak) countStreak(user);
+
+            userRepository.save(user);
+        }
+    }
+
+    /**
+     * Counts a user's streak. Handles the maximumStreak as well.
+     *
+     * @param user An entity instance of the user
+     */
+    public void countStreak(@NonNull User user) {
+        int newStreak = user.getCurrentStreak() + 1;
+
+        user.setCurrentStreak(newStreak);
+        user.setMaximumStreak(Math.max(newStreak, user.getMaximumStreak()));
+        userRepository.save(user);
+    }
+
+    /**
+     * Counts a user's streak. Handles the maximumStreak as well.
+     *
+     * @param discordId The Discord ID of the user.
+     */
+    public void countStreak(@NonNull String discordId) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) countStreak(user);
+    }
+
+    /**
+     * Resets a user's streak.
+     *
+     * @param discordId the Discord ID of the user.
+     */
+    public void resetStreak(@NonNull String discordId) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            resetStreak(user);
+        }
+    }
+
+    /**
+     * Resets a user's streak.
+     *
+     * @param user The entity instance of the user.
+     */
+    public void resetStreak(@NonNull User user) {
+        user.setCurrentStreak(0);
+        userRepository.save(user);
     }
 
     /**
