@@ -5,7 +5,6 @@ import bot.entity.session.Session;
 import bot.entity.word.JournalWord;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
 import lombok.*;
 import net.dv8tion.jda.api.entities.Message;
 import org.bson.types.ObjectId;
@@ -32,10 +31,9 @@ public class User {
 
     private Map<String, Long> lastActivity;
 
-    /**
-     * Holds information about the user's streaks.
-     */
+    /** Holds information about the user's streaks. */
     private int currentStreak;
+
     private int maximumStreak;
 
     private static List<Integer> generateWeeklyPoints() {
@@ -43,12 +41,15 @@ public class User {
     }
 
     public void sendPrivateTemporaryMessage(String content) {
-        App.getJda().retrieveUserById(discordId).queue(user -> {
-            user.openPrivateChannel()
-                .flatMap(channel -> channel.sendMessage(content))
-                .delay(30, TimeUnit.SECONDS)
-                .flatMap(Message::delete)
-                .queue();
-        });
+        App.getJda()
+                .retrieveUserById(discordId)
+                .queue(
+                        user -> {
+                            user.openPrivateChannel()
+                                    .flatMap(channel -> channel.sendMessage(content))
+                                    .delay(30, TimeUnit.SECONDS)
+                                    .flatMap(Message::delete)
+                                    .queue();
+                        });
     }
 }

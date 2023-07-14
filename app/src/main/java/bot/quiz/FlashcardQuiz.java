@@ -134,8 +134,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
             embed.setColor(Constants.EMBED_COLOR);
             embed.setImage("https://media.tenor.com/MDTYbqilAxgAAAAC/ogvhs-high-five.gif");
 
-            if (complete)
-                userService.addDayPoints(user.getId(), 20);
+            if (complete) userService.addDayPoints(user.getId(), 20);
 
             bot.entity.User savedUser = userService.getUser(user.getId());
 

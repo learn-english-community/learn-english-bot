@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.JDA;
@@ -154,9 +153,8 @@ public class App implements ApplicationRunner {
 
             // Streak reset handling
             scheduler.schedule(
-                Constants.CRON_TEST,
-                new StreakResetTask(SpringContext.getBean(UserService.class))
-            );
+                    Constants.CRON_TEST,
+                    new StreakResetTask(SpringContext.getBean(UserService.class)));
 
         } catch (Exception e) {
             e.printStackTrace();

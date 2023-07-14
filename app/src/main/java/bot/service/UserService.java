@@ -173,11 +173,11 @@ public class UserService {
             int initialPoints = user.getWeeklyPoints().get(today);
             user.getWeeklyPoints().set(today, user.getWeeklyPoints().get(today) + points);
 
-            boolean surpassedPts = user.getWeeklyPoints().get(today) >= Constants.MIN_POINTS_FOR_STREAK;
+            boolean surpassedPts =
+                    user.getWeeklyPoints().get(today) >= Constants.MIN_POINTS_FOR_STREAK;
             boolean justAchievedStreak = initialPoints >= Constants.MIN_POINTS_FOR_STREAK;
 
-            if (surpassedPts && !justAchievedStreak)
-                countStreak(user);
+            if (surpassedPts && !justAchievedStreak) countStreak(user);
 
             userRepository.save(user);
         }
@@ -204,8 +204,7 @@ public class UserService {
     public void countStreak(@NonNull String discordId) {
         User user = userRepository.findUserByDiscordId(discordId);
 
-        if (user != null)
-            countStreak(user);
+        if (user != null) countStreak(user);
     }
 
     /**
