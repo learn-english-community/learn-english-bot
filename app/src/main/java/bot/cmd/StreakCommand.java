@@ -2,7 +2,6 @@ package bot.cmd;
 
 import bot.service.UserService;
 import bot.view.StreakView;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +21,8 @@ public class StreakCommand extends BotCommand {
         StreakView view = new StreakView();
 
         event.reply("")
-            .setEphemeral(true)
-            .setEmbeds(view.getStreak(userService.getUser(userId)))
-            .queue();
+                .setEphemeral(true)
+                .setEmbeds(view.getStreak(userService.getUser(userId)))
+                .queue();
     }
 }
