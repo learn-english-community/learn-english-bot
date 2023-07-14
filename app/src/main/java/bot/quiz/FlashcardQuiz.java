@@ -82,7 +82,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
                                     channel.deleteMessageById(success.getId())
                                             .queueAfter(10L, TimeUnit.SECONDS);
                                 });
-                finish(false);
+                finish(false, false);
             } else {
                 Session session =
                         Session.builder()
@@ -90,7 +90,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
                                 .type(Session.Type.JOURNAL_QUIZ)
                                 .build();
                 userService.saveSession(getUser().getId(), session);
-                finish(true);
+                finish(true, true);
             }
 
             return;
@@ -124,7 +124,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
         showQuestion();
     }
 
-    public void finish(boolean announce) {
+    public void finish(boolean announce, boolean complete) {
         if (announce) {
             EmbedBuilder embed = new EmbedBuilder();
             StreakView streakView = new StreakView();
@@ -134,7 +134,9 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
             embed.setColor(Constants.EMBED_COLOR);
             embed.setImage("https://media.tenor.com/MDTYbqilAxgAAAAC/ogvhs-high-five.gif");
 
-            userService.addDayPoints(user.getId(), 20);
+            if (complete)
+                userService.addDayPoints(user.getId(), 20);
+
             bot.entity.User savedUser = userService.getUser(user.getId());
 
             channel.sendMessageEmbeds(List.of(embed.build(), streakView.getStreak(savedUser)))

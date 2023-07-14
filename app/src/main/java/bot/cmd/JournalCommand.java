@@ -131,7 +131,7 @@ public class JournalCommand extends BotCommand {
         }
 
         if (id.contains("flashcard-quit")) {
-            FlashcardQuiz.getInstance(user.getId()).ifPresent(quiz -> quiz.finish(true));
+            FlashcardQuiz.getInstance(user.getId()).ifPresent(quiz -> quiz.finish(true, false));
             return;
         }
 
