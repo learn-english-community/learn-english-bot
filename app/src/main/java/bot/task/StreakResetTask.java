@@ -1,6 +1,7 @@
 package bot.task;
 
 import bot.entity.User;
+import bot.entity.session.Session;
 import bot.service.UserService;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
@@ -9,7 +10,6 @@ import lombok.extern.log4j.Log4j2;
 public class StreakResetTask implements Runnable {
 
     private final UserService userService;
-    private final String ACTIVITY_NAME = "JOURNAL_QUIZ";
 
     private final long DAY_AMOUNT = 1000 * 60 * 60 * 24;
     private final long HOUR_AMOUNT = 1000 * 60 * 60;
@@ -29,7 +29,8 @@ public class StreakResetTask implements Runnable {
 
         users.forEach(
                 user -> {
-                    long lastActivity = user.getLastActivity().get(ACTIVITY_NAME);
+                    long lastActivity =
+                            user.getLastActivity().get(Session.Type.JOURNAL_QUIZ.name());
                     long lastRelative = now - lastActivity;
                     boolean hasStreak = user.getCurrentStreak() != 0;
 
