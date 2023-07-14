@@ -17,8 +17,9 @@ public class StreakView {
 
     public MessageEmbed getStreak(User user) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle("Your streak status 🔥");
+        embedBuilder.setTitle("Your streak status: " + user.getCurrentStreak() + " 🔥");
         embedBuilder.setColor(Color.ORANGE);
+        embedBuilder.setDescription("Maximum streak: " + user.getMaximumStreak());
         AtomicInteger counter = new AtomicInteger(1);
 
         user.getWeeklyPoints()

@@ -7,6 +7,7 @@ public class Constants {
 
     public static final String CRON_DAILY_MORNING = "0 7 * * *";
     public static final String CRON_DAILY_MIDDLE = "0 15 * * *";
+    public static final String CRON_HOURLY = "0 * * * *";
     public static final String CRON_TEST = "* * * * *";
 
     public static final String TOTD_API_URL = "https://conversation-starter1.p.rapidapi.com/";

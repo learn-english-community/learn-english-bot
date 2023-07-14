@@ -1,5 +1,6 @@
 package bot.service;
 
+import bot.Constants;
 import bot.entity.User;
 import bot.entity.session.Session;
 import bot.entity.word.JournalWord;
@@ -35,6 +36,10 @@ public class UserService {
 
     public User getUser(@NonNull String discordId) {
         return userRepository.findUserByDiscordId(discordId);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     /**
@@ -165,9 +170,65 @@ public class UserService {
         int today = LocalDate.now().getDayOfWeek().getValue() - 1;
 
         if (user != null) {
+            int initialPoints = user.getWeeklyPoints().get(today);
             user.getWeeklyPoints().set(today, user.getWeeklyPoints().get(today) + points);
+
+            boolean surpassedPts = user.getWeeklyPoints().get(today) >= Constants.MIN_POINTS_FOR_STREAK;
+            boolean justAchievedStreak = initialPoints >= Constants.MIN_POINTS_FOR_STREAK;
+
+            if (surpassedPts && !justAchievedStreak)
+                countStreak(user);
+
             userRepository.save(user);
         }
+    }
+
+    /**
+     * Counts a user's streak. Handles the maximumStreak as well.
+     *
+     * @param user An entity instance of the user
+     */
+    public void countStreak(@NonNull User user) {
+        int newStreak = user.getCurrentStreak() + 1;
+
+        user.setCurrentStreak(newStreak);
+        user.setMaximumStreak(Math.max(newStreak, user.getMaximumStreak()));
+        userRepository.save(user);
+    }
+
+    /**
+     * Counts a user's streak. Handles the maximumStreak as well.
+     *
+     * @param discordId The Discord ID of the user.
+     */
+    public void countStreak(@NonNull String discordId) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null)
+            countStreak(user);
+    }
+
+    /**
+     * Resets a user's streak.
+     *
+     * @param discordId the Discord ID of the user.
+     */
+    public void resetStreak(@NonNull String discordId) {
+        User user = userRepository.findUserByDiscordId(discordId);
+
+        if (user != null) {
+            resetStreak(user);
+        }
+    }
+
+    /**
+     * Resets a user's streak.
+     *
+     * @param user The entity instance of the user.
+     */
+    public void resetStreak(@NonNull User user) {
+        user.setCurrentStreak(0);
+        userRepository.save(user);
     }
 
     /**

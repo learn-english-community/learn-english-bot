@@ -2,6 +2,8 @@ package bot;
 
 import bot.cmd.*;
 import bot.listener.ReadyListener;
+import bot.service.UserService;
+import bot.task.StreakResetTask;
 import com.deepl.api.Translator;
 import com.mongodb.BasicDBObject;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -12,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -42,6 +46,8 @@ public class App implements ApplicationRunner {
 
     public static List<EventListener> listeners = new ArrayList<>();
     public static List<BotCommand> commands;
+
+    @Getter private static JDA jda;
 
     @Autowired private MongoTemplate mongoTemplate;
 
@@ -92,7 +98,7 @@ public class App implements ApplicationRunner {
             listeners.forEach(jdaBuilder::addEventListeners);
             commands.forEach(jdaBuilder::addEventListeners);
 
-            JDA jda = jdaBuilder.build();
+            jda = jdaBuilder.build();
             jda.awaitReady();
 
             Optional<Guild> guildOptional = jda.getGuilds().stream().findFirst();
@@ -145,6 +151,12 @@ public class App implements ApplicationRunner {
                         TOTDHandler.getTotd().executeCron(guild);
                         wotdHandler.executeCron(guild);
                     });
+
+            // Streak reset handling
+            scheduler.schedule(
+                Constants.CRON_TEST,
+                new StreakResetTask(SpringContext.getBean(UserService.class))
+            );
 
         } catch (Exception e) {
             e.printStackTrace();
