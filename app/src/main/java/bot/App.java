@@ -153,7 +153,7 @@ public class App implements ApplicationRunner {
 
             // Streak reset handling
             scheduler.schedule(
-                    Constants.CRON_TEST,
+                    Constants.CRON_HOURLY,
                     new StreakResetTask(SpringContext.getBean(UserService.class)));
 
         } catch (Exception e) {
