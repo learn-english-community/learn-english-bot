@@ -35,6 +35,15 @@ public class UserService {
     }
 
     public User getUser(@NonNull String discordId) {
+        boolean exists = userExists(discordId);
+
+        if (!exists) {
+            User user = User.builder().discordId(discordId).words(Collections.emptyList()).build();
+
+            createUser(user);
+            return user;
+        }
+
         return userRepository.findUserByDiscordId(discordId);
     }
 
