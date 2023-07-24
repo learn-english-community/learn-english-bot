@@ -34,7 +34,22 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /**
+     * Gets an instance of the user <b>or creates a new one</b>.
+     *
+     * @param discordId The discord ID of the user to look for
+     * @return An existing or new instance of the user from the database
+     */
     public User getUser(@NonNull String discordId) {
+        boolean exists = userExists(discordId);
+
+        if (!exists) {
+            User user = User.builder().discordId(discordId).words(Collections.emptyList()).build();
+
+            createUser(user);
+            return user;
+        }
+
         return userRepository.findUserByDiscordId(discordId);
     }
 
