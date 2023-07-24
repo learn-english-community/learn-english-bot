@@ -6,7 +6,6 @@ import bot.entity.word.JournalWord;
 import bot.service.UserService;
 import bot.service.WordCacheService;
 import bot.view.WordCacheView;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -126,7 +125,7 @@ public class DefineCommand extends BotCommand {
             int selectedNo = Integer.parseInt(selected);
             String discordId = event.getUser().getId();
             String numberDisplay = "**#" + (selectedNo + 1) + "**";
-
+            User user = userService.getUser(discordId);
             JournalWord journalWord =
                     JournalWord.builder()
                             .word(word)
@@ -137,30 +136,6 @@ public class DefineCommand extends BotCommand {
                             .definitionIndex(selectedNo)
                             .quality(-1) // -1 since this word has never been graded before
                             .build();
-
-            // If the user was not found
-            if (!userService.userExists(discordId)) {
-                User user =
-                        User.builder()
-                                .discordId(event.getUser().getId())
-                                .words(Collections.singletonList(journalWord))
-                                .build();
-
-                userService.createUser(user);
-                userService.updateWordSuperMemo(
-                        discordId, journalWord.getWord(), journalWord.getDefinitionIndex(), 0);
-
-                event.reply(
-                                "I saved the word `"
-                                        + word
-                                        + "` to your journal with"
-                                        + " the "
-                                        + numberDisplay
-                                        + " definition! :blue_book:")
-                        .setEphemeral(true)
-                        .queue();
-                return;
-            }
 
             if (userService.hasJournalWord(discordId, word, journalWord.getDefinitionIndex())) {
                 event.reply(
