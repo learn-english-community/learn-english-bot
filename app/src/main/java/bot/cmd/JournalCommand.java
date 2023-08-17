@@ -93,7 +93,6 @@ public class JournalCommand extends BotCommand {
         String id = event.getComponentId();
         User user = event.getUser();
 
-
         // Display to the user the dropdown menu asking them
         // what words to include.
         if (id.contains("exercise")) {
