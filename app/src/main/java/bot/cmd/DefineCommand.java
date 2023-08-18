@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -54,15 +55,18 @@ public class DefineCommand extends BotCommand {
         String word = event.getOption("word").getAsString();
         WordCacheView wordCacheView = new WordCacheView();
         Optional<CachedWord> cachedWord = wordCacheService.getWordFromCacheOrAPI(word);
+        ChannelType channelType = event.getChannel().getType();
 
         if (cachedWord.isEmpty()) {
             event.reply("I am not familiar with that word! :pensive:").setEphemeral(true).queue();
             return;
         }
 
+        boolean ephemeral = !channelType.isGuild();
         EmbedBuilder embedBuilder = wordCacheView.getDefinitionEmbed(cachedWord.get());
         event.replyEmbeds(embedBuilder.build())
                 .addActionRow(Button.secondary("save", "Save").withEmoji(Emoji.fromUnicode("💾")))
+                .setEphemeral(ephemeral)
                 .queue();
     }
 
