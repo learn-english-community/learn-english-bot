@@ -93,12 +93,11 @@ public class JournalCommand extends BotCommand {
         String id = event.getComponentId();
         User user = event.getUser();
 
-        event.deferEdit().queue();
-
         // Display to the user the dropdown menu asking them
         // what words to include.
         if (id.contains("exercise")) {
             if (FlashcardQuiz.getInstance(user.getId()).isPresent()) {
+                event.deferEdit().queue();
                 event.getHook()
                         .editOriginal("There is already a quiz in progress! ⭐️")
                         .setEmbeds(Collections.emptyList())
@@ -106,6 +105,7 @@ public class JournalCommand extends BotCommand {
                 return;
             }
 
+            event.deferEdit().queue();
             StringSelectMenu.Builder menu =
                     StringSelectMenu.create(JournalDisplay.PREFIX + "filter");
             Arrays.stream(FlashcardQuizFilter.values())
@@ -155,14 +155,18 @@ public class JournalCommand extends BotCommand {
             return;
         }
 
-        int page = Integer.parseInt(id.split(":")[1]);
-        JournalDisplay journalDisplay = journalView.getUserJournalDisplay(user, page, WORDS_COUNT);
+        if (id.startsWith("journal-")) {
+            int page = Integer.parseInt(id.split(":")[1]);
+            JournalDisplay journalDisplay =
+                    journalView.getUserJournalDisplay(user, page, WORDS_COUNT);
 
-        event.getHook()
-                .editOriginal(journalDisplay.getMessage())
-                .setEmbeds(journalDisplay.getWords())
-                .setActionRow(journalDisplay.getActionButtons())
-                .queue();
+            event.deferEdit().queue();
+            event.getHook()
+                    .editOriginal(journalDisplay.getMessage())
+                    .setEmbeds(journalDisplay.getWords())
+                    .setActionRow(journalDisplay.getActionButtons())
+                    .queue();
+        }
     }
 
     @Override
