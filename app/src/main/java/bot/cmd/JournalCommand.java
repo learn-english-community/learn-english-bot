@@ -157,14 +157,15 @@ public class JournalCommand extends BotCommand {
 
         if (id.startsWith("journal-")) {
             int page = Integer.parseInt(id.split(":")[1]);
-            JournalDisplay journalDisplay = journalView.getUserJournalDisplay(user, page, WORDS_COUNT);
+            JournalDisplay journalDisplay =
+                    journalView.getUserJournalDisplay(user, page, WORDS_COUNT);
 
             event.deferEdit().queue();
             event.getHook()
-                .editOriginal(journalDisplay.getMessage())
-                .setEmbeds(journalDisplay.getWords())
-                .setActionRow(journalDisplay.getActionButtons())
-                .queue();
+                    .editOriginal(journalDisplay.getMessage())
+                    .setEmbeds(journalDisplay.getWords())
+                    .setActionRow(journalDisplay.getActionButtons())
+                    .queue();
         }
     }
 
