@@ -46,9 +46,12 @@ jobs:
       with:
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-    - name: Docker configuration
-      run: |-
-        echo ${{steps.auth.outputs.access_token}} | docker login -u oauth2accesstoken --password-stdin https://$GAR_LOCATION-docker.pkg.dev
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0
+      
+    - name: Register gcloud as a Docker credential helper
+      run: gcloud auth configure-docker
+
     # Get the GKE credentials so we can deploy to the cluster
     - name: Set up GKE credentials
       uses: google-github-actions/get-gke-credentials@v0
