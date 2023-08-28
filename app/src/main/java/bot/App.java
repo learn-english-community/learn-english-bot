@@ -82,17 +82,7 @@ public class App implements ApplicationRunner {
         scheduler.start();
 
         try {
-            String envVar = App.getenv("PROD_BUILD");
-            int isProdBuild;
-
-            if (envVar != null) {
-                isProdBuild = Integer.parseInt(envVar);
-            } else {
-                isProdBuild = 0;
-            }
-
-            String botToken = isProdBuild == 1 ? "BOT_TOKEN_PROD" : "BOT_TOKEN_DEV";
-            JDABuilder jdaBuilder = JDABuilder.createDefault(App.getenv(botToken));
+            JDABuilder jdaBuilder = JDABuilder.createDefault(App.getenv("BOT_TOKEN"));
 
             jdaBuilder.enableIntents(GatewayIntent.GUILD_VOICE_STATES);
             commands = SpringContext.getBeansOfType(BotCommand.class);
