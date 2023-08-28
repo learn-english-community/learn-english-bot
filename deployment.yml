@@ -6,14 +6,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: learn-english-app
+      app: learn-english
   template:
     metadata:
       labels:
-        app: learn-english-app
+        app: learn-english
     spec:
       containers:
-        - name: learn-english-app
+        - name: learn-english
           image: learn-english:latest
         - name: mongodb
           image: mongo:latest
