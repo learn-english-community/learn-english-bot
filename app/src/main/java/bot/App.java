@@ -5,9 +5,12 @@ import bot.listener.ReadyListener;
 import bot.service.UserService;
 import bot.task.StreakResetTask;
 import com.deepl.api.Translator;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
-import io.github.cdimascio.dotenv.Dotenv;
 import it.sauronsoftware.cron4j.Scheduler;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +43,7 @@ public class App implements ApplicationRunner {
 
     public static final Scheduler scheduler = new Scheduler();
 
-    private static Dotenv dotenv;
+    private static JsonObject config;
     private static Translator translator;
 
     public static List<EventListener> listeners = new ArrayList<>();
@@ -168,20 +171,21 @@ public class App implements ApplicationRunner {
     }
 
     public static String getenv(String key) {
-        if (dotenv == null) {
+        if (config == null) {
             try {
-                dotenv = Dotenv.configure().directory("..").load();
+                config = JsonParser.parseReader(new FileReader("config.json")).getAsJsonObject();
             } catch (Exception e) {
-                dotenv = null;
+                config = null;
             }
         }
 
-        // Prioritize .env first
-        String value = null;
+        // Prioritize config first
+        JsonElement value = null;
 
-        if (dotenv != null) value = dotenv.get(key);
+        System.out.println(key);
+        if (config != null) value = config.get(key);
 
-        return value != null ? value : System.getenv(key);
+        return value != null ? value.getAsString() : System.getenv(key);
     }
 
     public static void main(String[] args) {
