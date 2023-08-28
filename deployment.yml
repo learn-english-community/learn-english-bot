@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: learn-english-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: learn-english-app
+  template:
+    metadata:
+      labels:
+        app: learn-english-app
+    spec:
+      containers:
+        - name: learn-english-app
+          image: learn-english:latest
+        - name: mongodb
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
