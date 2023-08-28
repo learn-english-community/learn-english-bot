@@ -3,7 +3,3 @@ kind: Kustomization
 
 resources:
   - deployment.yml
-
-images:
-  - name: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE
-    newTag: GITHUB_SHA
