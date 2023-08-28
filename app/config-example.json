@@ -1,0 +1,15 @@
+{
+  "BOT_TOKEN": "<Insert Discord bot's token here>",
+
+  "KEY_DEEPL": "<Insert DeepL Translation token here>",
+  "KEY_RAPID_API": "<Insert Rapid API key here>",
+
+  "ROLE_ID_VOICE_CHAT": "<@Voice Chat role ID>",
+  "ROLE_ID_TOTD": "<@TOTD role ID>",
+  "ROLE_ID_WOTD": "<@WOTD role ID>",
+  "CHANNEL_ID_CHAT": "#chat text channel ID",
+  "CHANNEL_ID_WOTD": "#wotd text channel ID",
+
+  "MONGODB_URI": "mongodb://<host>:<port>",
+  "MONGODB_DATABASE": "learn_english"
+}

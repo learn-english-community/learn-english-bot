@@ -3,7 +3,7 @@ build
 bin
 .vscode
 .idea
-.env
+config.json
 
 .classpath
 .project
