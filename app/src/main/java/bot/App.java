@@ -163,7 +163,7 @@ public class App implements ApplicationRunner {
     public static String getenv(String key) {
         if (config == null) {
             try {
-                config = JsonParser.parseReader(new FileReader("config.json")).getAsJsonObject();
+                config = JsonParser.parseReader(new FileReader("../config.json")).getAsJsonObject();
             } catch (Exception e) {
                 config = null;
             }
