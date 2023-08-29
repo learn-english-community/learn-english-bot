@@ -172,7 +172,6 @@ public class App implements ApplicationRunner {
         // Prioritize config first
         JsonElement value = null;
 
-        System.out.println(key);
         if (config != null) value = config.get(key);
 
         return value != null ? value.getAsString() : System.getenv(key);
