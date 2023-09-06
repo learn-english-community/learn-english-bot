@@ -24,13 +24,12 @@ env:
   DEPLOYMENT_NAME: learn-english
   REPOSITORY: learn-english
   IMAGE: learn-english
+  ENVIRONMENT: ${{ vars.ENVIRONMENT_STAGE }}
 
 jobs:
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name }}
 
     permissions:
       contents: 'read'
@@ -70,7 +69,7 @@ jobs:
         jq -s '.[0] * .[1]' secrets.json vars.json > config.json
 
         docker build \
-          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE-$GITHUB_REF_NAME:$GITHUB_SHA" \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE-$ENVIRONMENT:$GITHUB_SHA" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           .
@@ -81,7 +80,7 @@ jobs:
     # Push the Docker image to Google Artifact Registry
     - name: Publish
       run: |-
-        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE-$GITHUB_REF_NAME:$GITHUB_SHA"
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE-$ENVIRONMENT:$GITHUB_SHA"
     # Set up kustomize
     - name: Set up Kustomize
       run: |-
@@ -90,8 +89,8 @@ jobs:
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
-        # replacing the image name in the k8s template
-        ./kustomize edit set image learn-english=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA
+        kubectl create namespace $ENVIRONMENT--dry-run='client'
+        ./kustomize edit set image learn-english=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE-$ENVIRONMENT:$GITHUB_SHA
         ./kustomize build . | kubectl apply -n $GITHUB_REF_NAME -f -
         kubectl rollout status deployment/$DEPLOYMENT_NAME
         kubectl get services -n $GITHUB_REF_NAME -o wide
