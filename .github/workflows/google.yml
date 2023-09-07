@@ -95,5 +95,5 @@ jobs:
         kubectl create namespace $PROJECT_ENV || true
         ./kustomize edit set image learn-english=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE-$PROJECT_ENV:$GITHUB_SHA
         ./kustomize build . | kubectl apply -n $PROJECT_ENV -f -
-        kubectl rollout status deployment/$DEPLOYMENT_NAME
+        kubectl rollout status -n $PROJECT_ENV deployment/$DEPLOYMENT_NAME
         kubectl get services -n $PROJECT_ENV -o wide
