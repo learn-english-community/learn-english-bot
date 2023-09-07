@@ -21,7 +21,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GAR_LOCATION: us-east1
-  GKE_CLUSTER: learn-english-cluster-staging
+  GKE_CLUSTER: learn-english-cluster
   GKE_ZONE: us-central1
   DEPLOYMENT_NAME: learn-english
   REPOSITORY: learn-english
