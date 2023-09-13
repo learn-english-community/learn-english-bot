@@ -1,0 +1,8 @@
+name: learn-english-bot
+replicaCount: 1
+
+autoscaling:
+  enabled: false
+
+container:
+  name: core
