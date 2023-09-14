@@ -67,18 +67,11 @@ jobs:
     # Build the Docker image
     - name: Build
       run: |-
-        echo "$REPO_SECRETS" > secrets.json
-        echo "$REPO_VARS" > vars.json
-        jq -s '.[0] * .[1]' secrets.json vars.json > config.json
-
         docker build \
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/core:$PROJECT_ENV" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           .
-      env:
-        REPO_SECRETS: ${{ toJSON(secrets) }}
-        REPO_VARS: ${{ toJSON(vars) }}
 
     # Push the Docker image to Google Artifact Registry
     - name: Publish

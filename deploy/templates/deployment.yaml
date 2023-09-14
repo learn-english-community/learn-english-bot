@@ -20,3 +20,8 @@ spec:
       containers:
         - name: {{ .Values.container.name }}
           image: {{ .Values.container.image }}
+          envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-configmap
+          - secretRef:
+              name: {{ .Release.Name }}-secret
