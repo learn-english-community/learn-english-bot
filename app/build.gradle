@@ -24,8 +24,8 @@ repositories {
 dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.mockito:mockito-core:5.5.0"
-    testImplementation 'net.bytebuddy:byte-buddy:1.14.8'
-    testImplementation 'net.bytebuddy:byte-buddy-agent:1.14.8'
+    testImplementation 'net.bytebuddy:byte-buddy:1.14.10'
+    testImplementation 'net.bytebuddy:byte-buddy-agent:1.14.10'
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.data:spring-data-mongodb'
