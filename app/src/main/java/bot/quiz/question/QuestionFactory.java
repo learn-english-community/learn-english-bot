@@ -1,10 +1,10 @@
 package bot.quiz.question;
 
 import bot.Constants;
-import bot.entity.word.CachedWord;
 import bot.entity.word.JournalWord;
-import bot.service.WordCacheService;
-import java.util.Optional;
+import bot.entity.word.WiktionaryWord;
+import bot.entity.word.WordDefinition;
+import bot.service.WordService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,33 +12,35 @@ import org.springframework.stereotype.Component;
 @Component
 public class QuestionFactory {
 
-    private final WordCacheService wordsService;
+    private final WordService wordsService;
 
     @Autowired
-    public QuestionFactory(WordCacheService wordsService) {
+    public QuestionFactory(WordService wordsService) {
         this.wordsService = wordsService;
     }
 
-    public FlashcardQuestion createFlashcardQuestion(int id, JournalWord word) {
-        final FlashcardQuestion question = new FlashcardQuestion(id, word);
+    public FlashcardQuestion createFlashcardQuestion(int id, JournalWord journalWord) {
+        final FlashcardQuestion question = new FlashcardQuestion(id, journalWord);
 
         // Construct answer embed
         EmbedBuilder answerEmbed = new EmbedBuilder();
         answerEmbed.setAuthor("Question #" + id);
-        answerEmbed.setTitle("📖 The definition of \"" + word + "\" is:");
+        answerEmbed.setTitle("📖 The definition of \"" + journalWord + "\" is:");
         answerEmbed.setColor(Constants.EMBED_COLOR);
 
-        Optional<CachedWord.Definition> definitionOptional =
-                wordsService.getDefinitionByIndex(word.getWord(), word.getDefinitionIndex());
+        WiktionaryWord wiktionaryWord = wordsService.findWord(journalWord.getWord()).orElse(null);
 
-        if (definitionOptional.isEmpty()) {
+        if (wiktionaryWord == null) {
             answerEmbed.addField("", "Well, this is awkward, but there is no definition!", true);
             question.setAnswer(answerEmbed.build());
             return question;
         }
 
-        CachedWord.Definition definition = definitionOptional.get();
-        answerEmbed.addField(definition.getPartOfSpeech(), "> " + definition.getDefinition(), true);
+        int definitionIdx = journalWord.getDefinitionIndex();
+        WordDefinition definition = wiktionaryWord.getDefinitions().get(definitionIdx);
+        String definitionText = definition.getText().get(journalWord.getTextIndex());
+
+        answerEmbed.addField(definition.getPartOfSpeech(), "> " + definitionText, true);
 
         answerEmbed.addField(
                 "",
@@ -53,7 +55,7 @@ public class QuestionFactory {
         String part = definition.getPartOfSpeech();
         questionEmbed.setAuthor("Question #" + id);
         questionEmbed.setTitle(
-                "What is the definition of the word \"" + word + "\" (" + part + ")? 🤔");
+                "What is the definition of the word \"" + journalWord + "\" (" + part + ")? 🤔");
         questionEmbed.addField(
                 "",
                 "Try to guess the meaning of the"

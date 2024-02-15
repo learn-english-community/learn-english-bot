@@ -4,11 +4,14 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.deepl.api.Language;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
 public class LanguagesTest {
+
+    private final List<Language> languages = new ArrayList<>();
 
     @Before
     public void setUp() {
@@ -46,8 +49,6 @@ public class LanguagesTest {
                         "Ukrainian",
                         "Chinese (simplified)");
 
-        Languages.languages.clear();
-
         languages.forEach(
                 language -> {
                     int idx = languages.indexOf(language);
@@ -57,19 +58,19 @@ public class LanguagesTest {
                     when(deeplLanguage.getName()).thenReturn(language);
                     when(deeplLanguage.getCode()).thenReturn(languageCode);
 
-                    Languages.languages.add(deeplLanguage);
+                    this.languages.add(deeplLanguage);
                 });
     }
 
     @Test
     public void testGetCodeFromDisplay() {
-        assertEquals("en", Languages.getCodeFromDisplay("English"));
-        assertEquals("de", Languages.getCodeFromDisplay("German"));
-        assertEquals("en-gb", Languages.getCodeFromDisplay("English (British)"));
-        assertEquals("pt-br", Languages.getCodeFromDisplay("Portuguese (Brazilian)"));
-        assertEquals("en", Languages.getCodeFromDisplay(null));
-        assertEquals("en", Languages.getCodeFromDisplay("Unknown"));
-        assertEquals("en", Languages.getCodeFromDisplay(""));
+        assertEquals("en", Languages.getCodeFromDisplay(languages, "English"));
+        assertEquals("de", Languages.getCodeFromDisplay(languages, "German"));
+        assertEquals("en-gb", Languages.getCodeFromDisplay(languages, "English (British)"));
+        assertEquals("pt-br", Languages.getCodeFromDisplay(languages, "Portuguese (Brazilian)"));
+        assertEquals("en", Languages.getCodeFromDisplay(languages, null));
+        assertEquals("en", Languages.getCodeFromDisplay(languages, "Unknown"));
+        assertEquals("en", Languages.getCodeFromDisplay(languages, ""));
     }
 
     @Test

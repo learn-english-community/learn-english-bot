@@ -20,8 +20,8 @@ public class ApplicationConfig extends AbstractMongoClientConfiguration {
 
     @Override
     public MongoClient mongoClient() {
-        String url = App.getenv("MONGODB_URI");
-        String database = App.getenv("MONGODB_DATABASE");
+        String url = App.getEnv("MONGODB_URI");
+        String database = App.getEnv("MONGODB_DATABASE");
 
         try {
             ConnectionString connectionString = new ConnectionString(url + "/" + database);

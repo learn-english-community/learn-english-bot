@@ -3,6 +3,8 @@ package bot.cmd;
 import bot.App;
 import bot.Constants;
 import bot.util.Languages;
+import com.deepl.api.DeepLException;
+import com.deepl.api.Language;
 import com.deepl.api.TextResult;
 import java.util.*;
 import net.dv8tion.jda.api.entities.User;
@@ -28,6 +30,8 @@ public class TranslateCommand extends BotCommand {
      */
     private static final Map<String, Integer> usages = new HashMap<>();
 
+    private final List<Language> languages;
+
     public TranslateCommand() {
         super("translate", "Translate your text in to a different language!", true);
 
@@ -41,10 +45,10 @@ public class TranslateCommand extends BotCommand {
                         true);
 
         try {
-            Languages.languages = App.getTranslator().getTargetLanguages();
-            Languages.languages.forEach(language -> targetArg.addOption(language.getName()));
-        } catch (Exception e) {
-            e.printStackTrace();
+            languages = App.getTranslator().getTargetLanguages();
+            languages.forEach(language -> targetArg.addOption(language.getName()));
+        } catch (InterruptedException | DeepLException e) {
+            throw new RuntimeException(e);
         }
 
         getArguments().put(targetArg.getName(), targetArg);
@@ -84,7 +88,7 @@ public class TranslateCommand extends BotCommand {
                             args.put(option.getName(), om.getAsString());
                         });
 
-        String targetLang = Languages.getCodeFromDisplay(args.get("target"));
+        String targetLang = Languages.getCodeFromDisplay(languages, args.get("target"));
         String text = args.get("text");
 
         // Check if length exceeds maximum translation length.

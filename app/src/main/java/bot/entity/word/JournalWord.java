@@ -1,21 +1,34 @@
 package bot.entity.word;
 
 import bot.Constants;
+import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 @SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
-public class JournalWord extends Word {
+public class JournalWord {
+
+    @SerializedName("word")
+    @Indexed
+    private String word;
+
+    /** Stores the saved definition. */
+    private WordDefinition savedDefinition;
+
     /** A timestamp that indicates the time this word was added. */
     private long timeAdded;
 
     /** The index of the definition that the user has saved. */
     private int definitionIndex;
+
+    /** The index of the text of a definition that the user has saved. */
+    private int textIndex;
 
     /** SuperMemo algorithm value. */
     private int repetitions;
@@ -66,6 +79,6 @@ public class JournalWord extends Word {
 
     @Override
     public String toString() {
-        return this.getWord();
+        return this.word;
     }
 }

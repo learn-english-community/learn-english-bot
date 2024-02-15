@@ -1,9 +1,10 @@
 package bot.view.paginator;
 
-import bot.entity.word.CachedWord;
 import bot.entity.word.JournalWord;
+import bot.entity.word.WiktionaryWord;
+import bot.entity.word.WordDefinition;
 import bot.service.UserService;
-import bot.service.WordCacheService;
+import bot.service.WordService;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,12 +21,12 @@ import org.springframework.stereotype.Component;
 public class JournalPaginator extends Paginator<List<MessageEmbed>> {
 
     private final UserService userService;
-    private final WordCacheService wordCacheService;
+    private final WordService wordService;
 
     @Autowired
-    public JournalPaginator(UserService userService, WordCacheService wordCacheService) {
+    public JournalPaginator(UserService userService, WordService wordService) {
         this.userService = userService;
-        this.wordCacheService = wordCacheService;
+        this.wordService = wordService;
     }
 
     /**
@@ -39,7 +40,7 @@ public class JournalPaginator extends Paginator<List<MessageEmbed>> {
     public List<MessageEmbed> getPage(User user, int page, int count) {
         List<MessageEmbed> embeds = new ArrayList<>();
         List<JournalWord> words;
-        PrettyTime t = new PrettyTime();
+        var prettyTime = new PrettyTime();
 
         if (userService.userExists(user.getId())) {
             words = userService.getRecentJournalWords(user.getId(), page, count);
@@ -47,41 +48,35 @@ public class JournalPaginator extends Paginator<List<MessageEmbed>> {
 
         words.forEach(
                 word -> {
-                    Optional<CachedWord> cachedWordOptional =
-                            wordCacheService.getWordFromCacheOrAPI(word.getWord());
+                    WiktionaryWord wiktionaryWord =
+                            wordService.findWord(word.getWord()).orElse(null);
 
-                    if (cachedWordOptional.isPresent()) {
-                        CachedWord cachedWord = cachedWordOptional.get();
-                        EmbedBuilder embed = new EmbedBuilder();
-                        String wordString = word.getWord();
-                        Optional<CachedWord.Definition> definitionOptional =
-                                cachedWord.getResults().stream()
-                                        .filter(d -> d.getIndex() == word.getDefinitionIndex())
-                                        .findFirst();
-
-                        if (definitionOptional.isEmpty()) return;
-
-                        CachedWord.Definition definition = definitionOptional.get();
-
-                        String storedTime = t.format(new Date(word.getTimeAdded()));
-                        String nextPracticeTime = t.format(new Date(word.getNextPractice()));
-                        String lastPracticeTime = t.format(new Date(word.getLastPracticed()));
-                        String squashedDefinition = splitString(definition.getDefinition(), 8);
-
-                        embed.setTitle(wordString);
-                        embed.setColor(39129);
-
-                        embed.addField("Part of speech", definition.getPartOfSpeech(), false);
-                        embed.addField("Definition", squashedDefinition, false);
-                        embed.addField("Stored time", storedTime, true);
-                        embed.addField("Last practiced", lastPracticeTime, true);
-                        embed.addField("Next practice", nextPracticeTime, true);
-                        embed.addField("Quality", renderQuality(word.calculateQuality()), true);
-                        embed.addField(
-                                "Times practiced", String.valueOf(word.getRepetitions()), true);
-
-                        embeds.add(embed.build());
+                    if (wiktionaryWord == null) {
+                        return;
                     }
+
+                    EmbedBuilder embed = new EmbedBuilder();
+                    String wordString = word.getWord();
+                    WordDefinition definition = word.getSavedDefinition();
+                    String text = definition.getText().get(word.getTextIndex());
+
+                    String storedTime = prettyTime.format(new Date(word.getTimeAdded()));
+                    String nextPracticeTime = prettyTime.format(new Date(word.getNextPractice()));
+                    String lastPracticeTime = prettyTime.format(new Date(word.getLastPracticed()));
+                    String squashedDefinition = splitString(text, 8);
+
+                    embed.setTitle(wordString);
+                    embed.setColor(39129);
+
+                    embed.addField("Part of speech", definition.getPartOfSpeech(), false);
+                    embed.addField("Definition", squashedDefinition, false);
+                    embed.addField("Stored time", storedTime, true);
+                    embed.addField("Last practiced", lastPracticeTime, true);
+                    embed.addField("Next practice", nextPracticeTime, true);
+                    embed.addField("Quality", renderQuality(word.calculateQuality()), true);
+                    embed.addField("Times practiced", String.valueOf(word.getRepetitions()), true);
+
+                    embeds.add(embed.build());
                 });
 
         return embeds;

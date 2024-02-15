@@ -10,7 +10,6 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -18,7 +17,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 /** Represents flashcard quiz, mostly used by user journals. */
-@Getter
 public class FlashcardQuiz extends Quiz<MessageEmbed> {
 
     private final UserService userService;
@@ -27,7 +25,8 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
 
     private String lastMessageId;
 
-    private static final Map<String, FlashcardQuiz> quizes = new HashMap<>();
+    private static final Map<String, FlashcardQuiz> quizes =
+            Collections.synchronizedMap(new HashMap<>());
 
     protected FlashcardQuiz(
             User user,
@@ -115,8 +114,7 @@ public class FlashcardQuiz extends Quiz<MessageEmbed> {
     }
 
     private void removeLastMessage() {
-        if (this.getLastMessageId() != null)
-            channel.deleteMessageById(this.getLastMessageId()).queue();
+        if (this.lastMessageId != null) channel.deleteMessageById(this.lastMessageId).queue();
     }
 
     @Override

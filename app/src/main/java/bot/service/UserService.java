@@ -4,7 +4,6 @@ import bot.Constants;
 import bot.entity.User;
 import bot.entity.session.Session;
 import bot.entity.word.JournalWord;
-import bot.entity.word.Word;
 import bot.repository.UserRepository;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -319,7 +318,7 @@ public class UserService {
 
         return words.stream()
                 .filter(w -> w.getDefinitionIndex() == definitionIndex)
-                .map(Word::getWord)
+                .map(JournalWord::getWord)
                 .collect(Collectors.toList())
                 .contains(word);
     }

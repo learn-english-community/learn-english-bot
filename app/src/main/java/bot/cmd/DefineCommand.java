@@ -1,11 +1,11 @@
 package bot.cmd;
 
 import bot.entity.User;
-import bot.entity.word.CachedWord;
 import bot.entity.word.JournalWord;
+import bot.entity.word.WiktionaryWord;
 import bot.service.UserService;
-import bot.service.WordCacheService;
-import bot.view.WordCacheView;
+import bot.service.WordService;
+import bot.view.WordView;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -34,7 +34,7 @@ public class DefineCommand extends BotCommand {
 
     @Autowired private UserService userService;
 
-    @Autowired private WordCacheService wordCacheService;
+    @Autowired private WordService wordService;
 
     public DefineCommand() {
         super("define", "Get a word definition!", true);
@@ -52,18 +52,18 @@ public class DefineCommand extends BotCommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        String word = event.getOption("word").getAsString();
-        WordCacheView wordCacheView = new WordCacheView();
-        Optional<CachedWord> cachedWord = wordCacheService.getWordFromCacheOrAPI(word);
+        String wordStr = event.getOption("word").getAsString();
+        WiktionaryWord word = wordService.findWord(wordStr).orElse(null);
+        WordView wordView = new WordView();
         ChannelType channelType = event.getChannel().getType();
 
-        if (cachedWord.isEmpty()) {
+        if (word == null || wordStr.isEmpty()) {
             event.reply("I am not familiar with that word! :pensive:").setEphemeral(true).queue();
             return;
         }
 
         boolean ephemeral = !channelType.isGuild();
-        EmbedBuilder embedBuilder = wordCacheView.getDefinitionEmbed(cachedWord.get());
+        EmbedBuilder embedBuilder = wordView.getDefinitionEmbed(word);
         event.replyEmbeds(embedBuilder.build())
                 .addActionRow(Button.secondary("save", "Save").withEmoji(Emoji.fromUnicode("💾")))
                 .setEphemeral(ephemeral)
@@ -130,6 +130,14 @@ public class DefineCommand extends BotCommand {
             String discordId = event.getUser().getId();
             String numberDisplay = "**#" + (selectedNo + 1) + "**";
             User user = userService.getUser(discordId);
+            WiktionaryWord wiktionaryWord = wordService.findWord(word).orElse(null);
+
+            if (wiktionaryWord == null) {
+                log.error("Got a null Wiktionary response after picking definitionIndex");
+                event.reply("Something went wrong. Please try again.").setEphemeral(true).queue();
+                return;
+            }
+
             JournalWord journalWord =
                     JournalWord.builder()
                             .word(word)
@@ -138,6 +146,7 @@ public class DefineCommand extends BotCommand {
                             .interval(1)
                             .easiness(2.5f)
                             .definitionIndex(selectedNo)
+                            .savedDefinition(wiktionaryWord.getDefinitions().get(selectedNo))
                             .quality(-1) // -1 since this word has never been graded before
                             .build();
 

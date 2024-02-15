@@ -1,7 +1,6 @@
 package bot.util;
 
 import com.deepl.api.Language;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -10,21 +9,13 @@ import java.util.List;
  * codes.
  */
 public class Languages {
-
-    /**
-     * Represents a list of all the languages currently supported by the DeepL API.
-     *
-     * <p>It gets populated whenever the bot gets executed.
-     */
-    public static List<Language> languages = new ArrayList<>();
-
     /**
      * Converts a language's display name to its corresponding code.
      *
      * @param language The language to convert
      * @return The corresponding code
      */
-    public static String getCodeFromDisplay(String language) {
+    public static String getCodeFromDisplay(List<Language> languages, String language) {
         return languages.stream()
                 .filter(l -> l.getName().equalsIgnoreCase(language))
                 .map(Language::getCode)

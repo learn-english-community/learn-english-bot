@@ -1,7 +1,7 @@
 package bot;
 
-import bot.service.WordCacheService;
-import bot.view.WordCacheView;
+import bot.service.WordService;
+import bot.view.WordView;
 import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -18,11 +18,11 @@ public class WOTDHandler {
     /** Holds an instance of the WOTDHandler. */
     private static WOTDHandler wotd;
 
-    private final WordCacheService wordCacheService;
+    private final WordService wordService;
 
     @Autowired
-    private WOTDHandler(WordCacheService wordCacheService) {
-        this.wordCacheService = wordCacheService;
+    private WOTDHandler(WordService wordService) {
+        this.wordService = wordService;
     }
 
     /**
@@ -34,7 +34,7 @@ public class WOTDHandler {
      * @param guild A reference of the guild to perform this to
      */
     public void executeCron(Guild guild) {
-        TextChannel chatChannel = guild.getTextChannelById(App.getenv("CHANNEL_ID_WOTD"));
+        TextChannel chatChannel = guild.getTextChannelById(App.getEnv("CHANNEL_ID_WOTD"));
 
         if (chatChannel != null) announce(chatChannel);
     }
@@ -49,15 +49,14 @@ public class WOTDHandler {
     public void announce(TextChannel textChannel) {
         Role role =
                 Objects.requireNonNull(textChannel.getGuild())
-                        .getRoleById(App.getenv("ROLE_ID_WOTD"));
+                        .getRoleById(App.getEnv("ROLE_ID_WOTD"));
 
         if (role == null) {
             log.warn("ROLE_ID_WOTD was not found");
             return;
         }
-        WordCacheView wordCacheView = new WordCacheView();
-        EmbedBuilder embed =
-                wordCacheView.getDefinitionEmbed(wordCacheService.getRandomWordFromAPI());
+        WordView wordView = new WordView();
+        EmbedBuilder embed = wordView.getDefinitionEmbed(wordService.getRandomWordFromAPI());
         textChannel.sendMessage(role.getAsMention()).setEmbeds(embed.build()).queue();
     }
 }

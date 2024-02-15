@@ -3,13 +3,12 @@ package bot.quiz;
 import bot.SpringContext;
 import bot.cmd.JournalCommand;
 import bot.entity.User;
-import bot.entity.word.CachedWord;
 import bot.entity.word.JournalWord;
-import bot.service.WordCacheService;
+import bot.service.WordService;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -71,24 +70,14 @@ public enum FlashcardQuizFilter {
                 String partOfSpeech = metadata.getAsString();
 
                 // @Christolis: I guess there's no other way to acquire this bean.
-                WordCacheService wordCacheService = SpringContext.getBean(WordCacheService.class);
+                WordService wordService = SpringContext.getBean(WordService.class);
+                Predicate<JournalWord> isIncluded =
+                        (word) ->
+                                word.getSavedDefinition()
+                                        .getPartOfSpeech()
+                                        .equalsIgnoreCase(partOfSpeech);
 
-                return user.getWords().stream()
-                        .filter(
-                                w -> {
-                                    Optional<CachedWord> cachedWord =
-                                            wordCacheService.getWordFromCacheOrAPI(w.getWord());
-
-                                    return cachedWord
-                                            .map(
-                                                    word ->
-                                                            word.getResults()
-                                                                    .get(w.getDefinitionIndex())
-                                                                    .getPartOfSpeech()
-                                                                    .equalsIgnoreCase(partOfSpeech))
-                                            .orElse(false);
-                                })
-                        .collect(Collectors.toList());
+                return user.getWords().stream().filter(isIncluded).collect(Collectors.toList());
             },
             () -> {
                 String id = JournalCommand.PREFIX + "part-of-speech";

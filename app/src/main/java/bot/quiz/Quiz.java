@@ -2,13 +2,11 @@ package bot.quiz;
 
 import bot.quiz.question.Question;
 import java.util.Map;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.entities.User;
 
 @Getter
-@AllArgsConstructor
 public abstract class Quiz<T> {
 
     /** Represents the person who is taking the quiz */
@@ -22,6 +20,17 @@ public abstract class Quiz<T> {
     @Setter private Question<T> currentQuestion;
 
     public Quiz() {}
+
+    public Quiz(
+            User user,
+            Map<Integer, Question<T>> questions,
+            int currentQuestionId,
+            Question<T> currentQuestion) {
+        this.user = user;
+        this.questions = questions;
+        this.currentQuestionId = currentQuestionId;
+        this.currentQuestion = currentQuestion;
+    }
 
     public abstract void showQuestion(int number);
 

@@ -1,5 +1,6 @@
 package bot.entity.word;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,5 +17,13 @@ public abstract class Word {
     @Id private ObjectId id;
 
     /** The word text. */
-    @Indexed private String word;
+    @SerializedName("word")
+    @Indexed
+    private String word;
+
+    @SerializedName("etymology")
+    private String etymology;
+
+    @SerializedName("pronunciations")
+    private WordPronunciation pronunciations;
 }

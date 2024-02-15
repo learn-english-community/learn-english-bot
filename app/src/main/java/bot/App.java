@@ -11,10 +11,7 @@ import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
 import it.sauronsoftware.cron4j.Scheduler;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -29,6 +26,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -55,10 +53,15 @@ public class App implements ApplicationRunner {
 
     @Autowired private WOTDHandler wotdHandler;
 
+    @Value("${spring.application.name}")
+    private String appName;
+
     // Listeners
     static {
         listeners.add(new ReadyListener());
     }
+
+    public App() {}
 
     public void launch() {
         // Test DB connection
@@ -82,7 +85,7 @@ public class App implements ApplicationRunner {
         scheduler.start();
 
         try {
-            JDABuilder jdaBuilder = JDABuilder.createDefault(App.getenv("BOT_TOKEN"));
+            JDABuilder jdaBuilder = JDABuilder.createDefault(App.getEnv("BOT_TOKEN"));
 
             jdaBuilder.enableIntents(GatewayIntent.GUILD_VOICE_STATES);
             commands = SpringContext.getBeansOfType(BotCommand.class);
@@ -155,12 +158,12 @@ public class App implements ApplicationRunner {
     }
 
     public static Translator getTranslator() {
-        if (translator == null) translator = new Translator(App.getenv("KEY_DEEPL"));
+        if (translator == null) translator = new Translator(App.getEnv("KEY_DEEPL"));
 
         return translator;
     }
 
-    public static String getenv(String key) {
+    public static String getEnv(String key) {
         if (config == null) {
             try {
                 config = JsonParser.parseReader(new FileReader("../config.json")).getAsJsonObject();

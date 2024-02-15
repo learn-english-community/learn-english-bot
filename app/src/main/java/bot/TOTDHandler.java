@@ -36,7 +36,7 @@ public class TOTDHandler {
     private void getNewTopic() {
         String response =
                 Unirest.get(Constants.TOTD_API_URL)
-                        .header("X-RapidAPI-Key", App.getenv("KEY_RAPID_API"))
+                        .header("X-RapidAPI-Key", App.getEnv("KEY_RAPID_API"))
                         .asString()
                         .getBody();
 
@@ -52,7 +52,7 @@ public class TOTDHandler {
      */
     public void announce(TextChannel channel) {
         Guild guild = channel.getGuild();
-        Role totdRole = guild.getRoleById(App.getenv("ROLE_ID_TOTD"));
+        Role totdRole = guild.getRoleById(App.getEnv("ROLE_ID_TOTD"));
 
         if (totdRole == null) {
             log.warn("Tried to announce TOTD but role was not found.");
@@ -72,7 +72,7 @@ public class TOTDHandler {
      * @param guild A reference of the guild to perform this to
      */
     public void executeCron(Guild guild) {
-        TextChannel chatChannel = guild.getTextChannelById(App.getenv("CHANNEL_ID_CHAT"));
+        TextChannel chatChannel = guild.getTextChannelById(App.getEnv("CHANNEL_ID_CHAT"));
 
         if (chatChannel != null) {
             getNewTopic();

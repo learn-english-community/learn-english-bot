@@ -71,7 +71,7 @@ public class PingVoiceChatCommand extends BotCommand {
         // A handle of the @Voice Chat role.
         Role vcRole =
                 Objects.requireNonNull(event.getGuild())
-                        .getRoleById(App.getenv("ROLE_ID_VOICE_CHAT"));
+                        .getRoleById(App.getEnv("ROLE_ID_VOICE_CHAT"));
 
         if (vcRole == null) {
             log.warn("ROLE_ID_VOICE_CHAT was not found");
