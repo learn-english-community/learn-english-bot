@@ -49,9 +49,9 @@ public class App implements ApplicationRunner {
 
     @Getter private static JDA jda;
 
-    @Autowired private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
-    @Autowired private WOTDHandler wotdHandler;
+    private final WOTDHandler wotdHandler;
 
     @Value("${spring.application.name}")
     private String appName;
@@ -61,7 +61,11 @@ public class App implements ApplicationRunner {
         listeners.add(new ReadyListener());
     }
 
-    public App() {}
+    @Autowired
+    public App(MongoTemplate mongoTemplate, WOTDHandler wotdHandler) {
+        this.mongoTemplate = mongoTemplate;
+        this.wotdHandler = wotdHandler;
+    }
 
     public void launch() {
         // Test DB connection
