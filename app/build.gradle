@@ -9,8 +9,8 @@
 plugins {
     id 'application'
     id "com.diffplug.spotless" version "6.20.0"
-    id 'org.springframework.boot' version '3.1.4'
-    id 'io.spring.dependency-management' version '1.1.3'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 startScripts {
@@ -21,6 +21,17 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    springCloudVersion = "2023.0.0"
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework:spring-framework-bom:6.1.4'
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+   }
+}
+
 dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.mockito:mockito-core:5.4.0"
@@ -28,6 +39,8 @@ dependencies {
     testImplementation 'net.bytebuddy:byte-buddy-agent:1.14.6'
 
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap' // Needed for default bootstrap stuff, kind of necessary
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-all' // Handles all our Consul stuff
     implementation 'org.springframework.data:spring-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.projectlombok:lombok'
