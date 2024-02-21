@@ -2,9 +2,9 @@ package bot.service;
 
 import bot.consul.ConsulDiscoveryClientWrapper;
 import bot.entity.word.WiktionaryWord;
-
 import java.net.URI;
 import java.util.Optional;
+import kong.unirest.Unirest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +42,20 @@ public class WordService {
         }
 
         log.warn("Attempting to contact: " + serviceUri.getHost() + ":" + serviceUri.getPort());
+
+        var url =
+                String.format(
+                        "http://%s:%d/define?word=%s",
+                        serviceUri.getHost(), serviceUri.getPort(), word);
+        var responsePayload = Unirest.get(url).asString();
+
+        if (responsePayload == null) {
+            log.error("Empty response payload.");
+            return Optional.empty();
+        }
+
+        System.out.println(responsePayload.getBody());
+
         return Optional.empty();
     }
 
