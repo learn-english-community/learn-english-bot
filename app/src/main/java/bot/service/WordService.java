@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class WordService {
 
     private static final String SERVICE_NAME_WORD_WIKTIONARY = "word-wiktionary";
+    private static final String DEFINE_ENDPOINT = "define";
     private final ConsulDiscoveryClientWrapper discoveryClient;
 
     @Autowired
@@ -43,20 +44,21 @@ public class WordService {
 
         log.warn("Attempting to contact: " + serviceUri.getHost() + ":" + serviceUri.getPort());
 
-        var url =
-                String.format(
-                        "http://%s:%d/define?word=%s",
-                        serviceUri.getHost(), serviceUri.getPort(), word);
-        var responsePayload = Unirest.get(url).asString();
+        final String url = getUriFromEndpoint(serviceUri, DEFINE_ENDPOINT);
+        Unirest.get(url).queryString("word", word).thenConsume(response -> {
+            var body = response.getContentAsString("UTF-8");
 
-        if (responsePayload == null) {
-            log.error("Empty response payload.");
-            return Optional.empty();
-        }
-
-        System.out.println(responsePayload.getBody());
+        });
 
         return Optional.empty();
+    }
+
+    /**
+     * Takes in a {@link URI} and an endpoint string, and constructs a URL
+     * used to make the request.
+     */
+    private static String getUriFromEndpoint(final URI uri, String endpoint) {
+        return "http://%s:%d/%s".formatted(uri.getHost(), uri.getPort(), endpoint);
     }
 
     /**
