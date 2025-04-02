@@ -18,8 +18,8 @@ public class JoinListener extends ListenerAdapter {
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         User user = event.getUser();
         try {
-            //505348918520053760L Member role id in the Official Learn English Server.
-            //1120239610920976563L Member role id in the Learn English (Staging) Server.
+            // 505348918520053760L Member role id in the Official Learn English Server.
+            // 1120239610920976563L Member role id in the Learn English (Staging) Server.
             Role role = event.getGuild().getRoleById(505348918520053760L);
             if (role != null) {
                 // Assign the member role to the new user.
