@@ -1,6 +1,7 @@
 package bot;
 
 import bot.cmd.*;
+import bot.listener.JoinListener;
 import bot.listener.ReadyListener;
 import bot.service.UserService;
 import bot.task.StreakResetTask;
@@ -58,6 +59,7 @@ public class App implements ApplicationRunner {
     // Listeners
     static {
         listeners.add(new ReadyListener());
+        listeners.add(new JoinListener());
     }
 
     public void launch() {
