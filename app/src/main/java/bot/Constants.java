@@ -22,4 +22,9 @@ public class Constants {
     public static final int MIN_POINTS_FOR_STREAK = 20;
 
     public static final String DATABASE_NAME = "learn_english";
+
+    public static final Long MEMBER_ROLE_ID = 505348918520053760L;
+    // 505348918520053760L Member role id in the Official Learn English Server.
+    // 1120239610920976563L Member role id in the Learn English (Staging) Server.
+
 }
