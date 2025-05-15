@@ -2,11 +2,11 @@ package bot.listener;
 
 import bot.Constants;
 import lombok.extern.log4j.Log4j2;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.apache.logging.log4j.Level;
 
 /**
  * @author Eaky0 A listener called whenever a user joins the guild. Mainly used for assigning
@@ -19,22 +19,26 @@ public class JoinListener extends ListenerAdapter {
      */
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-        try {
-            User user = event.getUser();
-            Role role = event.getGuild().getRoleById(Constants.MEMBER_ROLE_ID);
-            if (role != null) {
-                // Assign the member role to the new user.
-                event.getGuild().addRoleToMember(user, role).queue();
+        Guild guild = event.getGuild();
+        User user = event.getUser();
+        Role role = guild.getRoleById(Constants.MEMBER_ROLE_ID);
 
-                String logNote = "Successfully assigned the member role to " + user.getName() + "!";
-                log.log(Level.INFO, logNote);
-
-            } else {
-                throw new NullPointerException();
-            }
-
-        } catch (NullPointerException e) {
-            log.error("Role doesn't exist!");
+        if (role == null) {
+            log.warn("Role ID (%s) does not match to the member role!");
+            return;
         }
+
+        if (event.getMember().getRoles().contains(role)) {
+            String message =
+                    String.format(
+                            "Member %s (ID: %s) already seems to have the member role.",
+                            user.getName(), user.getId());
+
+            log.info(message);
+            return;
+        }
+
+        // Assign the member role to the new user.
+        guild.addRoleToMember(user, role).queue();
     }
 }
